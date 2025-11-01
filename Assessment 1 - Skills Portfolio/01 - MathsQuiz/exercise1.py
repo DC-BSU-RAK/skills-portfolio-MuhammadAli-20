@@ -76,6 +76,13 @@ def randomInt(level):
     else:
         print(random.randint(1000, 9999))
 
+def decideOperation():
+    random.choice(["+", "-"])
+
+def displayProblem():
+    
+
+
 displayMenu()
 
 root.mainloop()
