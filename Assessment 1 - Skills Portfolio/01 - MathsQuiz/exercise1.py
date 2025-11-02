@@ -79,8 +79,30 @@ def randomInt(level):
 def decideOperation():
     random.choice(["+", "-"])
 
+global num1
+global num2
+num1 = randomInt(1, 9999)
+num2 = randomInt(1, 9999)
+
 def displayProblem():
-    
+    answer = num1 + num2
+    if int(add_answer.get()) == answer:
+        response = "Correct!" + str(num1) + "+" + str(num2) + "=" + str(answer)
+    else:
+        response = "Wrong!"
+
+    answer_message.config(text = response)
+
+
+
+
+global add_answer
+add_answer = Entry()
+add_answer.pack()
+
+
+
+
 
 
 displayMenu()
