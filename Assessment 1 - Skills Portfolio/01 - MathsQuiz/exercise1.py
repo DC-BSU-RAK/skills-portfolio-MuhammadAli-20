@@ -1,41 +1,43 @@
 from tkinter import *
-from random import randint, choice
 from tkinter import messagebox
+from random import randint, choice
 
 # ---------- MAIN WINDOW ----------
 root = Tk()
-root.geometry("650x500")
+root.geometry("600x350")
 root.title("Maths Quiz Game")
 
-# ---------- VARIABLES ----------
+# ---------- GLOBAL VARIABLES ----------
+difficulty = StringVar()
 question = StringVar()
 answer = IntVar()
 givenAnswer = StringVar()
-score = IntVar()
-questionNumber = IntVar()
-difficulty = StringVar()
-attempt = IntVar(value=1)
+score = IntVar(value = 0)
+current_question = 0
+attempts = 1
 
 # ---------- FUNCTIONS ----------
-
 def clear_window():
     for widget in root.winfo_children():
         widget.destroy()
 
 def displayMenu():
+    global current_question, score
     clear_window()
-    Label(root, text="DIFFICULTY LEVEL MENU", font=('arial', 22, 'bold')).pack(pady=30)
+    score.set(0)
+    current_question = 0
 
-    Button(root, text="Easy (Single Digits)", width=25, bg="#AEEEEE", fg="green",
-           font=('arial', 14, 'bold'), command=lambda: start_quiz("Easy")).pack(pady=10)
-    Button(root, text="Moderate (Double Digits)", width=25, bg="#AEEEEE", fg="orange",
-           font=('arial', 14, 'bold'), command=lambda: start_quiz("Moderate")).pack(pady=10)
-    Button(root, text="Advanced (Four Digits)", width=25, bg="#AEEEEE", fg="red",
-           font=('arial', 14, 'bold'), command=lambda: start_quiz("Advanced")).pack(pady=10)
-
+def displayMenu():
+    label = Label(root, text = "DIFFICULTY LEVEL MENU", fg = "black", font = ("Arial", 16, "bold"))
+    label.pack(pady = 30)
+    button = Button(root, text = "Easy (Single Digits)", command = lambda: begin_quiz("Easy"), fg = "green", font = ("Arial", 12, "bold"), bg = "#ADD8E6")
+    button.pack(pady = 7)
+    button = Button(root, text = "Moderate (Double Digits)", command = lambda: begin_quiz("Moderate"), fg = "yellow", font = ("Arial", 12, "bold"), bg = "#ADD8E6")
+    button.pack(pady = 7)
+    button = Button(root, text = "Advanced (Four Digits)", command = lambda: begin_quiz("Advanced"), fg = "red", font = ("Arial", 12, "bold"), bg = "#ADD8E6")
+    button.pack(pady = 7)
 
 def randomInt(level):
-    """Return numbers based on difficulty"""
     if level == "Easy":
         return randint(1, 9), randint(1, 9)
     elif level == "Moderate":
@@ -43,92 +45,91 @@ def randomInt(level):
     else:
         return randint(1000, 9999), randint(1000, 9999)
 
-
 def decideOperation():
-    """Return random + or -"""
-    return choice(['+', '-'])
+    return choice(["+", "-"])
 
-
-def start_quiz(level):
-    """Initialize game and show first question"""
+def begin_quiz(level):
+    global difficulty, current_question, score
     difficulty.set(level)
     score.set(0)
-    questionNumber.set(0)
-    attempt.set(1)
-    generateQuestion()
+    current_question = 0
+    show_question()
 
-
-def generateQuestion():
-    """Generate and display the question"""
+def show_question():
+    global num1, num2, operation, answer, attempts
     clear_window()
-    questionNumber.set(questionNumber.get() + 1)
-    attempt.set(1)
+    attempts = 1  
 
-    # generate numbers based on difficulty
     num1, num2 = randomInt(difficulty.get())
-    operator = decideOperation()
+    operation = decideOperation()
 
-    # avoid negative results
-    if operator == '-' and num1 < num2:
-        num1, num2 = num2, num1
-
-    question.set(f"{num1} {operator} {num2}")
+    question.set(f"{num1} {operation} {num2}")
     answer.set(eval(question.get()))
 
-    Label(root, text=f"Question {questionNumber.get()} of 10", font=('arial', 16, 'bold')).grid(row=0, column=0, pady=10)
-    Label(root, text=f"{question.get()} =", font=('arial', 24, 'bold')).grid(row=1, column=0, pady=10)
-
-    Entry(root, textvariable=givenAnswer, font=('arial', 20), width=10, justify="center").grid(row=2, column=0, pady=10)
-
-    Button(root, text="Submit", bg="lightblue", font=('arial', 14, 'bold'), command=checkAnswer).grid(row=3, column=0, pady=10)
-    Label(root, text=f"Score: {score.get()} / 100", font=('arial', 14, 'bold'), fg="blue").grid(row=4, column=0, pady=5)
-    Button(root, text="Quit", bg="grey", font=('arial', 12), command=displayMenu).grid(row=5, column=0, pady=10)
-
+    label = Label(root, text = f"Question {current_question + 1} of 10", font=("Arial", 18, "bold"))
+    label.pack(pady=10)
+    label = Label(root, text = f"{question.get()} =", font=("Arial", 20, "bold"))
+    label.pack(pady=10)
+    entry1 = Entry(root, text = givenAnswer, font=("Arial", 18), width=10, justify="center")
+    entry1.pack(pady=10)
+    button1 = Button(root, text = "Reset", command = lambda:entry1.delete(0, "end"), font=("Arial", 14, "bold"), bg="lightblue")
+    button1.pack(pady=10)
+    button2 = Button(root, text = "Submit", font=("Arial", 14, "bold"), command = checkAnswer, bg="lightblue")
+    button2.pack(pady=10)
+    label = Label(root, text = f"Score: {score.get()} / 100", font=("Arial", 14, "bold"), fg="green")
+    label.pack(pady=10)
 
 def checkAnswer():
-    """Check user's answer and handle scoring"""
-    try:
-        user_ans = int(givenAnswer.get())
-    except ValueError:
-        messagebox.showerror("Error", "Please enter a valid number!")
-        return
+    global attempts
 
-    correct_ans = answer.get()
+    correct_answer = answer.get()
+    attempts_allowed = 2 
+    current_try = attempts 
 
-    # correct
-    if user_ans == correct_ans:
-        if attempt.get() == 1:
-            score.set(score.get() + 10)
-            messagebox.showinfo("Correct!", "✅ Great job! +10 points.")
-        else:
-            score.set(score.get() + 5)
-            messagebox.showinfo("Correct!", "✅ Correct on second try! +5 points.")
-        nextQuestion()
+    while current_try <= attempts_allowed:
+        try:
+            user_answer = int(givenAnswer.get())
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid number!")
+            return
 
-    # wrong on first try
-    else:
-        if attempt.get() == 1:
-            attempt.set(2)
-            messagebox.showwarning("Try Again", "❌ Wrong! Try one more time.")
-            givenAnswer.set("")  # clear entry
-        else:
-            messagebox.showerror("Incorrect", f"Wrong again! Correct answer was {correct_ans}.")
+        if user_answer == correct_answer:
+            if current_try == 1:
+                score.set(score.get() + 10)
+                messagebox.showinfo("Correct!", "Great job! +10 points.")
+                ("correctsound_effect.mp3")
+            else:
+                score.set(score.get() + 5)
+                messagebox.showinfo("Correct!", "Correct on second try! +5 points.")
+                ("correctsound_effect.mp3")
             nextQuestion()
+            break
 
+        else:
+            if current_try == 1:
+                messagebox.showwarning("Try Again", "Wrong! Try once more.")
+                givenAnswer.set("")  
+                attempts = 2         
+                return               
+            else:
+                messagebox.showerror("Incorrect", f"Wrong again! The correct answer was {correct_answer}.")
+                nextQuestion()
+                break
 
 def nextQuestion():
-    """Move to next question or show final results"""
-    if questionNumber.get() < 10:
-        generateQuestion()
+    global current_question
+    current_question += 1
+
+    if current_question < 10:
+        show_question()
     else:
+        messagebox.showinfo("Quiz Completed", f"You’ve completed all {current_question} questions!")
         displayResults()
 
-
 def displayResults():
-    """Show final score and grade"""
     clear_window()
-    Label(root, text="🎉 QUIZ COMPLETED 🎉", font=('arial', 24, 'bold'), fg="green").pack(pady=30)
-    Label(root, text=f"Your Final Score: {score.get()} / 100", font=('arial', 18)).pack(pady=10)
+    Label(root, text="🎉 QUIZ COMPLETED 🎉", font=("Arial", 24, "bold"), fg="green").pack(pady=30)
+    Label(root, text=f"Your Final Score: {score.get()} / 100", font=("Arial", 18)).pack(pady=10)
 
     grade = ""
     if score.get() >= 90:
@@ -142,11 +143,12 @@ def displayResults():
     else:
         grade = "F"
 
-    Label(root, text=f"Grade: {grade}", font=('arial', 18, 'bold'), fg="blue").pack(pady=10)
-    Button(root, text="Play Again", bg="#AEEEEE", font=('arial', 14, 'bold'), command=displayMenu).pack(pady=10)
-    Button(root, text="Exit", bg="grey", font=('arial', 14), command=root.destroy).pack(pady=5)
+    Label(root, text=f"Grade: {grade}", font=("Arial", 18, "bold"), fg="blue").pack(pady=10)
+    Button(root, text="Play Again", bg="#AEEEEE", font=("Arial", 14, "bold"), command=displayMenu).pack(pady=10)
+    Button(root, text="Exit", bg="grey", font=("Arial", 14), command=root.destroy).pack(pady=5)
 
 
 # ---------- START PROGRAM ----------
 displayMenu()
 root.mainloop()
+
