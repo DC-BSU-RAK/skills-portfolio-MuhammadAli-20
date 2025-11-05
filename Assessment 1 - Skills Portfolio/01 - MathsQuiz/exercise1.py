@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
 from random import randint, choice
-import winsound
 
 # ---------- MAIN WINDOW ----------
 root = Tk()
@@ -13,14 +12,11 @@ difficulty = StringVar()
 question = StringVar()
 answer = IntVar()
 givenAnswer = StringVar()
-score = IntVar(value = 0)
+score = IntVar(value=0)
 current_question = 0
 attempts = 1
 
 # ---------- FUNCTIONS ----------
-def play_sound(sound_file):
-    winsound.PlaySound(sound_file, winsound.SND_FILENAME | winsound.SND_ASYNC)
-
 def clear_window():
     for widget in root.winfo_children():
         widget.destroy()
@@ -29,17 +25,20 @@ def displayMenu():
     global current_question, score
     clear_window()
     score.set(0)
+    question.set("")
+    givenAnswer.set("")
     current_question = 0
-
-def displayMenu():
-    label = Label(root, text = "DIFFICULTY LEVEL MENU", fg = "black", font = ("Arial", 16, "bold"))
-    label.pack(pady = 30)
-    button = Button(root, text = "Easy (Single Digits)", command = lambda: begin_quiz("Easy"), fg = "green", font = ("Arial", 12, "bold"), bg = "#ADD8E6")
-    button.pack(pady = 7)
-    button = Button(root, text = "Moderate (Double Digits)", command = lambda: begin_quiz("Moderate"), fg = "yellow", font = ("Arial", 12, "bold"), bg = "#ADD8E6")
-    button.pack(pady = 7)
-    button = Button(root, text = "Advanced (Four Digits)", command = lambda: begin_quiz("Advanced"), fg = "red", font = ("Arial", 12, "bold"), bg = "#ADD8E6")
-    button.pack(pady = 7)
+    label = Label(root, text="DIFFICULTY LEVEL MENU", fg="black", font=("Arial", 16, "bold"))
+    label.pack(pady=30)
+    button = Button(root, text="Easy (Single Digits)", command=lambda: begin_quiz("Easy"),
+                    fg="green", font=("Arial", 12, "bold"), bg="#ADD8E6")
+    button.pack(pady=7)
+    button = Button(root, text="Moderate (Double Digits)", command=lambda: begin_quiz("Moderate"),
+                    fg="yellow", font=("Arial", 12, "bold"), bg="#ADD8E6")
+    button.pack(pady=7)
+    button = Button(root, text="Advanced (Four Digits)", command=lambda: begin_quiz("Advanced"),
+                    fg="red", font=("Arial", 12, "bold"), bg="#ADD8E6")
+    button.pack(pady=7)
 
 def randomInt(level):
     if level == "Easy":
@@ -62,7 +61,7 @@ def begin_quiz(level):
 def show_question():
     global num1, num2, operation, answer, attempts
     clear_window()
-    attempts = 1  
+    attempts = 1
 
     num1, num2 = randomInt(difficulty.get())
     operation = decideOperation()
@@ -70,25 +69,26 @@ def show_question():
     question.set(f"{num1} {operation} {num2}")
     answer.set(eval(question.get()))
 
-    label = Label(root, text = f"Question {current_question + 1} of 10", font=("Arial", 18, "bold"))
+    label = Label(root, text=f"Question {current_question + 1} of 10", font=("Arial", 18, "bold"))
     label.pack(pady=10)
-    label = Label(root, text = f"{question.get()} =", font=("Arial", 20, "bold"))
+    label = Label(root, text=f"{question.get()} =", font=("Arial", 20, "bold"))
     label.pack(pady=10)
-    entry1 = Entry(root, text = givenAnswer, font=("Arial", 18), width=10, justify="center")
+    entry1 = Entry(root, textvariable=givenAnswer, font=("Arial", 18), width=10, justify="center")
     entry1.pack(pady=10)
-    button1 = Button(root, text = "Reset", command = lambda:entry1.delete(0, "end"), font=("Arial", 14, "bold"), bg="lightblue")
+    button1 = Button(root, text="Reset", command=lambda: entry1.delete(0, "end"),
+                     font=("Arial", 14, "bold"), bg="lightblue")
     button1.pack(pady=10)
-    button2 = Button(root, text = "Submit", font=("Arial", 14, "bold"), command = checkAnswer, bg="lightblue")
+    button2 = Button(root, text="Submit", font=("Arial", 14, "bold"), command=checkAnswer, bg="lightblue")
     button2.pack(pady=10)
-    label = Label(root, text = f"Score: {score.get()} / 100", font=("Arial", 14, "bold"), fg="green")
+    label = Label(root, text=f"Score: {score.get()} / 100", font=("Arial", 14, "bold"), fg="green")
     label.pack(pady=10)
 
 def checkAnswer():
     global attempts
 
     correct_answer = answer.get()
-    attempts_allowed = 2 
-    current_try = attempts 
+    attempts_allowed = 2
+    current_try = attempts
 
     while current_try <= attempts_allowed:
         try:
@@ -99,22 +99,20 @@ def checkAnswer():
 
         if user_answer == correct_answer:
             if current_try == 1:
-                score.set(score.get() + 10)
                 messagebox.showinfo("Correct!", "Great job! +10 points.")
-                play_sound("correctsound_effect.wav")
+                score.set(score.get() + 10)
             else:
+                messagebox.showinfo("Correct!", "Great job! +5 points.")
                 score.set(score.get() + 5)
-                messagebox.showinfo("Correct!", "Correct on second try! +5 points.")
-                play_sound("correctsound_effect.wav")
             nextQuestion()
             break
 
         else:
             if current_try == 1:
                 messagebox.showwarning("Try Again", "Wrong! Try once more.")
-                givenAnswer.set("")  
-                attempts = 2         
-                return               
+                givenAnswer.set("")
+                attempts = 2
+                return
             else:
                 messagebox.showerror("Incorrect", f"Wrong again! The correct answer was {correct_answer}.")
                 nextQuestion()
@@ -148,11 +146,23 @@ def displayResults():
         grade = "F"
 
     Label(root, text=f"Grade: {grade}", font=("Arial", 18, "bold"), fg="blue").pack(pady=10)
-    Button(root, text="Play Again", bg="#AEEEEE", font=("Arial", 14, "bold"), command=displayMenu).pack(pady=10)
-    Button(root, text="Exit", bg="grey", font=("Arial", 14), command=root.destroy).pack(pady=5)
 
+    Button(root, text="Restart", fg="red", bg="#FFE4E1",
+           font=('Arial', 15), width=15, command=restart).pack(pady=10)
+    Button(root, text="Exit", bg="grey", font=("Arial", 14),
+           command=root.destroy).pack(pady=5)
+
+def restart():
+    """Resets score and question count, and restarts quiz"""
+    global current_question, score
+    score.set(0)
+    current_question = 0
+    givenAnswer.set("")
+    question.set("")
+    displayMenu()  # return to difficulty menu
 
 # ---------- START PROGRAM ----------
 displayMenu()
 root.mainloop()
+
 
