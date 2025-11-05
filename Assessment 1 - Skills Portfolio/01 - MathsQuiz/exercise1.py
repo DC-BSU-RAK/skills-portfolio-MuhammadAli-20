@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from random import randint, choice
+import winsound
 
 # ---------- MAIN WINDOW ----------
 root = Tk()
@@ -17,6 +18,9 @@ current_question = 0
 attempts = 1
 
 # ---------- FUNCTIONS ----------
+def play_sound(sound_file):
+    winsound.PlaySound(sound_file, winsound.SND_FILENAME | winsound.SND_ASYNC)
+
 def clear_window():
     for widget in root.winfo_children():
         widget.destroy()
@@ -97,11 +101,11 @@ def checkAnswer():
             if current_try == 1:
                 score.set(score.get() + 10)
                 messagebox.showinfo("Correct!", "Great job! +10 points.")
-                ("correctsound_effect.mp3")
+                play_sound("correctsound_effect.wav")
             else:
                 score.set(score.get() + 5)
                 messagebox.showinfo("Correct!", "Correct on second try! +5 points.")
-                ("correctsound_effect.mp3")
+                play_sound("correctsound_effect.wav")
             nextQuestion()
             break
 
