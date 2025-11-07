@@ -75,8 +75,7 @@ def show_question():
     label.pack(pady=10)
     entry1 = Entry(root, textvariable=givenAnswer, font=("Arial", 18), width=10, justify="center")
     entry1.pack(pady=10)
-    button1 = Button(root, text="Reset", command=lambda: entry1.delete(0, "end"),
-                     font=("Arial", 14, "bold"), bg="lightblue")
+    button1 = Button(root, text="Reset", command=lambda: entry1.delete(0, "end"), font=("Arial", 14, "bold"), bg="lightblue")
     button1.pack(pady=10)
     button2 = Button(root, text="Submit", font=("Arial", 14, "bold"), command=checkAnswer, bg="lightblue")
     button2.pack(pady=10)
@@ -153,7 +152,6 @@ def displayResults():
            command=root.destroy).pack(pady=5)
 
 def restart():
-    """Resets score and question count, and restarts quiz"""
     global current_question, score
     score.set(0)
     current_question = 0
