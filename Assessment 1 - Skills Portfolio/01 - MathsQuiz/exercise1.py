@@ -12,7 +12,7 @@ difficulty = StringVar()
 question = StringVar()
 answer = IntVar()
 givenAnswer = StringVar()
-score = IntVar(value=0)
+score = IntVar(value = 0)
 current_question = 0
 attempts = 1
 
@@ -30,14 +30,11 @@ def displayMenu():
     current_question = 0
     label = Label(root, text="DIFFICULTY LEVEL MENU", fg="black", font=("Arial", 16, "bold"))
     label.pack(pady=30)
-    button = Button(root, text="Easy (Single Digits)", command=lambda: begin_quiz("Easy"),
-                    fg="green", font=("Arial", 12, "bold"), bg="#ADD8E6")
+    button = Button(root, text="Easy (Single Digits)", command=lambda: begin_quiz("Easy"), fg="green", font=("Arial", 12, "bold"), bg="#ADD8E6")
     button.pack(pady=7)
-    button = Button(root, text="Moderate (Double Digits)", command=lambda: begin_quiz("Moderate"),
-                    fg="yellow", font=("Arial", 12, "bold"), bg="#ADD8E6")
+    button = Button(root, text="Moderate (Double Digits)", command=lambda: begin_quiz("Moderate"), fg="yellow", font=("Arial", 12, "bold"), bg="#ADD8E6")
     button.pack(pady=7)
-    button = Button(root, text="Advanced (Four Digits)", command=lambda: begin_quiz("Advanced"),
-                    fg="red", font=("Arial", 12, "bold"), bg="#ADD8E6")
+    button = Button(root, text="Advanced (Four Digits)", command=lambda: begin_quiz("Advanced"), fg="red", font=("Arial", 12, "bold"), bg="#ADD8E6")
     button.pack(pady=7)
 
 def randomInt(level):
@@ -145,7 +142,6 @@ def displayResults():
         grade = "F"
 
     Label(root, text=f"Grade: {grade}", font=("Arial", 18, "bold"), fg="blue").pack(pady=10)
-
     Button(root, text="Restart", fg="red", bg="#FFE4E1",
            font=('Arial', 15), width=15, command=restart).pack(pady=10)
     Button(root, text="Exit", bg="grey", font=("Arial", 14),
