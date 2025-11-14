@@ -8,9 +8,6 @@ root = Tk()
 root.geometry("600x350")
 root.title("Maths Quiz Game")
 pygame.mixer.init()
-pygame.mixer.music.load("correctsound_effect.mp3")
-pygame.mixer.music.play()
-pygame.time.wait(50000)
 
 # ---------- GLOBAL VARIABLES ----------
 difficulty = StringVar()
@@ -22,6 +19,20 @@ current_question = 0
 attempts = 1
 
 # ---------- FUNCTIONS ----------
+def play_correct_sound():
+    try:
+        pygame.mixer.music.load("correct.mp3")       
+        pygame.mixer.music.play()
+    except Exception as e:
+        print("Sound error:", e)
+
+def play_wrong_sound():
+    try:   
+        pygame.mixer.music.load("negative_beeps.mp3")    
+        pygame.mixer.music.play()
+    except Exception as e:
+        print("Sound error:", e)
+
 def clear_window():
     for widget in root.winfo_children():
         widget.destroy()
@@ -99,6 +110,7 @@ def checkAnswer():
             return
 
         if user_answer == correct_answer:
+            play_correct_sound()
             if current_try == 1:
                 messagebox.showinfo("Correct!", "Great job! +10 points.")
                 score.set(score.get() + 10)
@@ -110,11 +122,13 @@ def checkAnswer():
 
         else:
             if current_try == 1:
+                play_wrong_sound()
                 messagebox.showwarning("Try Again", "Wrong! Try once more.")
                 givenAnswer.set("")
                 attempts = 2
                 return
             else:
+                play_wrong_sound()
                 messagebox.showerror("Incorrect", f"Wrong again! The correct answer was {correct_answer}.")
                 nextQuestion()
                 break
