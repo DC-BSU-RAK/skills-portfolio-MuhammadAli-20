@@ -1,11 +1,16 @@
 from tkinter import *
 from tkinter import messagebox
 from random import randint, choice
+import pygame
 
 # ---------- MAIN WINDOW ----------
 root = Tk()
 root.geometry("600x350")
 root.title("Maths Quiz Game")
+pygame.mixer.init()
+pygame.mixer.music.load("correctsound_effect.mp3")
+pygame.mixer.music.play()
+pygame.time.wait(50000)
 
 # ---------- GLOBAL VARIABLES ----------
 difficulty = StringVar()
@@ -30,11 +35,11 @@ def displayMenu():
     current_question = 0
     label = Label(root, text="DIFFICULTY LEVEL MENU", fg="black", font=("Arial", 16, "bold"))
     label.pack(pady=30)
-    button = Button(root, text="Easy (Single Digits)", command=lambda: begin_quiz("Easy"), fg="green", font=("Arial", 12, "bold"), bg="#ADD8E6")
+    button = Button(root, text="Easy (Single Digits)", command = lambda: begin_quiz("Easy"), fg="green", font=("Arial", 12, "bold"), bg="#ADD8E6")
     button.pack(pady=7)
-    button = Button(root, text="Moderate (Double Digits)", command=lambda: begin_quiz("Moderate"), fg="yellow", font=("Arial", 12, "bold"), bg="#ADD8E6")
+    button = Button(root, text="Moderate (Double Digits)", command = lambda: begin_quiz("Moderate"), fg="yellow", font=("Arial", 12, "bold"), bg="#ADD8E6")
     button.pack(pady=7)
-    button = Button(root, text="Advanced (Four Digits)", command=lambda: begin_quiz("Advanced"), fg="red", font=("Arial", 12, "bold"), bg="#ADD8E6")
+    button = Button(root, text="Advanced (Four Digits)", command = lambda: begin_quiz("Advanced"), fg="red", font=("Arial", 12, "bold"), bg="#ADD8E6")
     button.pack(pady=7)
 
 def randomInt(level):
@@ -125,9 +130,6 @@ def nextQuestion():
         displayResults()
 
 def displayResults():
-    clear_window()
-    Label(root, text="🎉 QUIZ COMPLETED 🎉", font=("Arial", 24, "bold"), fg="green").pack(pady=30)
-    Label(root, text=f"Your Final Score: {score.get()} / 100", font=("Arial", 18)).pack(pady=10)
 
     grade = ""
     if score.get() >= 90:
@@ -140,12 +142,18 @@ def displayResults():
         grade = "C"
     else:
         grade = "F"
-
-    Label(root, text=f"Grade: {grade}", font=("Arial", 18, "bold"), fg="blue").pack(pady=10)
-    Button(root, text="Restart", fg="red", bg="#FFE4E1",
-           font=('Arial', 15), width=15, command=restart).pack(pady=10)
-    Button(root, text="Exit", bg="grey", font=("Arial", 14),
-           command=root.destroy).pack(pady=5)
+    
+    clear_window()
+    label = Label(root, text="🎉 QUIZ COMPLETED 🎉", font=("Arial", 24, "bold"), fg="green")
+    label.pack(pady=30)
+    label = Label(root, text=f"Your Final Score: {score.get()} / 100", font=("Arial", 18))
+    label.pack(pady=10)
+    label = Label(root, text=f"Grade: {grade}", font=("Arial", 18, "bold"), fg="blue")
+    label.pack(pady=10)
+    button = Button(root, text="Restart", fg="red", bg="#FFE4E1", font=('Arial', 15), width=15, command=restart)
+    button.pack(pady=10)
+    button = Button(root, text="Exit", bg="grey", font=("Arial", 14), command = root.destroy)
+    button.pack(pady=5)
 
 def restart():
     global current_question, score
