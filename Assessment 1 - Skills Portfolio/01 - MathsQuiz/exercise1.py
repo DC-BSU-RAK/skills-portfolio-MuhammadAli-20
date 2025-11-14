@@ -20,18 +20,21 @@ attempts = 1
 
 # ---------- FUNCTIONS ----------
 def play_correct_sound():
-    try:
         pygame.mixer.music.load("correct.mp3")       
         pygame.mixer.music.play()
-    except Exception as e:
-        print("Sound error:", e)
 
 def play_wrong_sound():
-    try:   
         pygame.mixer.music.load("negative_beeps.mp3")    
         pygame.mixer.music.play()
-    except Exception as e:
-        print("Sound error:", e)
+
+def play_fail_sound():
+        pygame.mixer.music.load("fail_trumpet.mp3")    
+        pygame.mixer.music.play()
+
+def play_cheer_sound():
+        pygame.mixer.music.load("crowd_cheer.mp3")    
+        pygame.mixer.music.play()
+        root.after(6000, pygame.mixer.music.stop)
 
 def clear_window():
     for widget in root.winfo_children():
@@ -147,14 +150,17 @@ def displayResults():
 
     grade = ""
     if score.get() >= 90:
+        play_cheer_sound()
         grade = "A+"
     elif score.get() >= 75:
+        play_cheer_sound()
         grade = "A"
     elif score.get() >= 60:
         grade = "B"
     elif score.get() >= 40:
         grade = "C"
     else:
+        play_fail_sound()
         grade = "F"
     
     clear_window()
