@@ -181,7 +181,7 @@ def restart():
     current_question = 0
     givenAnswer.set("")
     question.set("")
-    displayMenu()  # return to difficulty menu
+    displayMenu()  
 
 # ---------- START PROGRAM ----------
 displayMenu()
