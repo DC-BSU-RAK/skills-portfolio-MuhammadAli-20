@@ -22,13 +22,13 @@ attempts = 1
 
 # ---------- FUNCTIONS ----------
 # ---------- BACKGROUND GIF SETUP ----------
-bg_canvas = tk.Canvas(root, width=600, height=350, highlightthickness=0, bd=0)
-bg_canvas.place(x=0, y=0, relwidth=1, relheight=1)
+bg_canvas = tk.Canvas(root, width = 600, height = 350, highlightthickness = 0, bd = 0)
+bg_canvas.place(x = 0, y = 0, relwidth = 1, relheight = 1)
 
 gif_pil_frames = []
 frame_delay = 100
 frame_index = 0
-bg_image_id = bg_canvas.create_image(0, 0, anchor="nw")
+bg_image_id = bg_canvas.create_image(0, 0, anchor = "nw")
 
 def load_gif_background():
     global frame_delay, gif_pil_frames
@@ -75,7 +75,6 @@ def play_cheer_sound():
         root.after(6000, pygame.mixer.music.stop)
 
 def clear_window():
-    """Remove all widgets except the background canvas."""
     for widget in root.winfo_children():
         if widget is not bg_canvas:
             widget.destroy()
@@ -87,16 +86,16 @@ def displayMenu():
     question.set("")
     givenAnswer.set("")
     current_question = 0
-    label = Label(root, text="DIFFICULTY LEVEL MENU", fg="black", font=("Arial", 16, "bold"))
-    label.pack(pady=30)
-    button = Button(root, text="Easy (Single Digits)", command = lambda: begin_quiz("Easy"), fg="green", font=("Arial", 12, "bold"), bg="#ADD8E6")
+    label = Label(root, text = "DIFFICULTY LEVEL MENU", fg = "black", font = ("Arial", 16, "bold"))
+    label.pack(pady = 30)
+    button = Button(root, text = "Easy (Single Digits)", command = lambda: begin_quiz("Easy"), fg = "green", font = ("Arial", 12, "bold"), bg = "#ADD8E6")
+    button.pack(pady = 7)
+    button = Button(root, text = "Moderate (Double Digits)", command = lambda: begin_quiz("Moderate"), fg = "yellow", font = ("Arial", 12, "bold"), bg = "#ADD8E6")
     button.pack(pady=7)
-    button = Button(root, text="Moderate (Double Digits)", command = lambda: begin_quiz("Moderate"), fg="yellow", font=("Arial", 12, "bold"), bg="#ADD8E6")
+    button = Button(root, text = "Advanced (Four Digits)", command = lambda: begin_quiz("Advanced"), fg = "red", font = ("Arial", 12, "bold"), bg = "#ADD8E6")
     button.pack(pady=7)
-    button = Button(root, text="Advanced (Four Digits)", command = lambda: begin_quiz("Advanced"), fg="red", font=("Arial", 12, "bold"), bg="#ADD8E6")
-    button.pack(pady=7)
-    button = Button(root, text="Close Quiz", bg="red", font=("Arial", 14, "bold"), command = root.destroy)
-    button.pack(pady=10)
+    button = Button(root, text = "Close Quiz", bg = "red", font = ("Arial", 14, "bold"), command = root.destroy)
+    button.pack(pady = 10)
 
 def randomInt(level):
     if level == "Easy":
@@ -127,18 +126,18 @@ def show_question():
     question.set(f"{num1} {operation} {num2}")
     answer.set(eval(question.get()))
 
-    label = Label(root, text=f"Question {current_question + 1} of 10", font=("Arial", 18, "bold"))
-    label.pack(pady=10)
-    label = Label(root, text=f"{question.get()} =", font=("Arial", 20, "bold"))
-    label.pack(pady=10)
-    entry1 = Entry(root, textvariable=givenAnswer, font=("Arial", 18), width=10, justify="center")
-    entry1.pack(pady=10)
-    button1 = Button(root, text="Reset", command=lambda: entry1.delete(0, "end"), font=("Arial", 14, "bold"), bg="lightblue")
-    button1.pack(pady=10)
-    button2 = Button(root, text="Submit", font=("Arial", 14, "bold"), command=checkAnswer, bg="lightblue")
-    button2.pack(pady=10)
-    label = Label(root, text=f"Score: {score.get()} / 100", font=("Arial", 14, "bold"), fg="green")
-    label.pack(pady=10)
+    label = Label(root, text = f"Question {current_question + 1} of 10", font = ("Arial", 18, "bold"))
+    label.pack(pady = 10)
+    label = Label(root, text = f"{question.get()} =", font = ("Arial", 20, "bold"))
+    label.pack(pady = 10)
+    entry1 = Entry(root, textvariable = givenAnswer, font = ("Arial", 18), width = 10, justify = "center")
+    entry1.pack(pady = 10)
+    button1 = Button(root, text = "Reset", command = lambda: entry1.delete(0, "end"), font = ("Arial", 14, "bold"), bg = "lightblue")
+    button1.pack(pady = 10)
+    button2 = Button(root, text = "Submit", font = ("Arial", 14, "bold"), command = checkAnswer, bg = "lightblue")
+    button2.pack(pady = 10)
+    label = Label(root, text = f"Score: {score.get()} / 100", font = ("Arial", 14, "bold"), fg = "green")
+    label.pack(pady = 10)
 
 def checkAnswer():
     global attempts
@@ -182,7 +181,7 @@ def nextQuestion():
     global current_question
     current_question += 1
 
-    if current_question < 10:
+    if current_question < 1:
         show_question()
     else:
         messagebox.showinfo("Quiz Completed", f"You’ve completed all {current_question} questions!")
@@ -206,16 +205,16 @@ def displayResults():
         grade = "F"
     
     clear_window()
-    label = Label(root, text="🎉 QUIZ COMPLETED 🎉", font=("Arial", 24, "bold"), fg="green")
-    label.pack(pady=7)
-    label = Label(root, text=f"Grade: {grade}", font=("Arial", 18, "bold"), fg="blue")
-    label.pack(pady=20)
-    label = Label(root, text=f"Your marks: {score.get()} / 100", font=("Arial", 18))
-    label.pack(pady=15)
-    button = Button(root, text="Restart", fg="red", bg="#FFE4E1", font=('Arial', 15), width=15, command=restart)
-    button.pack(pady=10)
-    button = Button(root, text="Exit", bg="red", font=("Arial", 14, "bold"), command = root.destroy)
-    button.pack(pady=20)
+    label = Label(root, text = "🎉 QUIZ COMPLETED 🎉", font = ("Arial", 24, "bold"), fg = "green")
+    label.pack(pady = 7)
+    label = Label(root, text = f"Grade: {grade}", font = ("Arial", 18, "bold"), fg = "blue")
+    label.pack(pady = 20)
+    label = Label(root, text = f"Your marks: {score.get()} / 100", font = ("Arial", 18))
+    label.pack(pady = 8)
+    button = Button(root, text = "Restart", fg = "red", bg = "#FFE4E1", font = ('Arial', 15), width = 15, command = restart)
+    button.pack(pady = 10)
+    button = Button(root, text = "Exit", bg = "red", font = ("Arial", 14, "bold"), command = root.destroy)
+    button.pack(pady = 20)
 
 def restart():
     global current_question, score
