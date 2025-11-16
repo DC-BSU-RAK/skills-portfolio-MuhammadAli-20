@@ -1,7 +1,9 @@
 from tkinter import *
+import tkinter as tk
 from tkinter import messagebox
 from random import randint, choice
 import pygame
+from PIL import Image, ImageTk
 
 # ---------- MAIN WINDOW ----------
 root = Tk()
@@ -19,6 +21,42 @@ current_question = 0
 attempts = 1
 
 # ---------- FUNCTIONS ----------
+# ---------- BACKGROUND GIF SETUP ----------
+bg_canvas = tk.Canvas(root, width=600, height=350, highlightthickness=0, bd=0)
+bg_canvas.place(x=0, y=0, relwidth=1, relheight=1)
+
+gif_pil_frames = []
+frame_delay = 100
+frame_index = 0
+bg_image_id = bg_canvas.create_image(0, 0, anchor="nw")
+
+def load_gif_background():
+    global frame_delay, gif_pil_frames
+
+    gif = Image.open("maths.gif")      
+
+    for f in range(gif.n_frames):
+        gif.seek(f)
+        frame = gif.copy().resize((600, 350))
+        gif_pil_frames.append(frame)
+
+    frame_delay = gif.info.get("duration", 100)
+
+def animate_background():
+    global frame_index
+
+    if not gif_pil_frames:
+        return
+
+    frame_index = (frame_index + 1) % len(gif_pil_frames)
+    pil_frame = gif_pil_frames[frame_index]
+
+    tk_frame = ImageTk.PhotoImage(pil_frame)
+    bg_canvas.itemconfig(bg_image_id, image=tk_frame)
+    bg_canvas.image = tk_frame  
+
+    root.after(frame_delay, animate_background)
+
 def play_correct_sound():
         pygame.mixer.music.load("correct.mp3")       
         pygame.mixer.music.play()
@@ -37,8 +75,10 @@ def play_cheer_sound():
         root.after(6000, pygame.mixer.music.stop)
 
 def clear_window():
+    """Remove all widgets except the background canvas."""
     for widget in root.winfo_children():
-        widget.destroy()
+        if widget is not bg_canvas:
+            widget.destroy()
 
 def displayMenu():
     global current_question, score
@@ -142,7 +182,7 @@ def nextQuestion():
     global current_question
     current_question += 1
 
-    if current_question < 1:
+    if current_question < 10:
         show_question()
     else:
         messagebox.showinfo("Quiz Completed", f"You’ve completed all {current_question} questions!")
@@ -186,6 +226,8 @@ def restart():
     displayMenu()  
 
 # ---------- START PROGRAM ----------
+load_gif_background()
+animate_background()
 displayMenu()
 root.mainloop()
 
