@@ -55,6 +55,8 @@ def displayMenu():
     button.pack(pady=7)
     button = Button(root, text="Advanced (Four Digits)", command = lambda: begin_quiz("Advanced"), fg="red", font=("Arial", 12, "bold"), bg="#ADD8E6")
     button.pack(pady=7)
+    button = Button(root, text="Close Quiz", bg="red", font=("Arial", 14, "bold"), command = root.destroy)
+    button.pack(pady=10)
 
 def randomInt(level):
     if level == "Easy":
@@ -140,7 +142,7 @@ def nextQuestion():
     global current_question
     current_question += 1
 
-    if current_question < 10:
+    if current_question < 1:
         show_question()
     else:
         messagebox.showinfo("Quiz Completed", f"You’ve completed all {current_question} questions!")
@@ -165,15 +167,15 @@ def displayResults():
     
     clear_window()
     label = Label(root, text="🎉 QUIZ COMPLETED 🎉", font=("Arial", 24, "bold"), fg="green")
-    label.pack(pady=30)
-    label = Label(root, text=f"Your Final Score: {score.get()} / 100", font=("Arial", 18))
-    label.pack(pady=10)
+    label.pack(pady=7)
     label = Label(root, text=f"Grade: {grade}", font=("Arial", 18, "bold"), fg="blue")
-    label.pack(pady=10)
+    label.pack(pady=20)
+    label = Label(root, text=f"Your marks: {score.get()} / 100", font=("Arial", 18))
+    label.pack(pady=15)
     button = Button(root, text="Restart", fg="red", bg="#FFE4E1", font=('Arial', 15), width=15, command=restart)
     button.pack(pady=10)
-    button = Button(root, text="Exit", bg="grey", font=("Arial", 14), command = root.destroy)
-    button.pack(pady=5)
+    button = Button(root, text="Exit", bg="red", font=("Arial", 14, "bold"), command = root.destroy)
+    button.pack(pady=20)
 
 def restart():
     global current_question, score
