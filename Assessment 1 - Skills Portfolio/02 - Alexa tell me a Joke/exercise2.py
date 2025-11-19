@@ -4,12 +4,12 @@ from PIL import ImageTk, Image
 
 # ---------- MAIN WINDOW ----------
 root = Tk()
-root.geometry("580x470")
+root.geometry("650x500")
 root.title("Random Joke Game")
 
 # ---------- BACKGROUND IMAGE ----------
 bg_image = Image.open("funny.png")
-bg_image = bg_image.resize((580, 470))  # Resize to match window size
+bg_image = bg_image.resize((650, 500))  # Resize to match window size
 bg_photo = ImageTk.PhotoImage(bg_image)
 
 bg_label = Label(root, image=bg_photo)
@@ -17,24 +17,24 @@ bg_label.image = bg_photo           # prevent garbage collection
 bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
 # Labels
-setup_label = Label(root, text="", font=("Arial", 14), wraplength=500)
-setup_label.place(x=50, y=20)
+setup_label = Label(root, text="", font=("Arial", 14), bg="#FFF8ED", width = 50)
+setup_label.place(x=60, y=120)
 
-punchline_label = Label(root, text="", font=("Arial", 14, "italic"), fg="blue", wraplength=500)
-punchline_label.place(x=50, y=80)
+punchline_label = Label(root, text="", font=("Arial", 14), bg="#FFF8ED", width = 50)
+punchline_label.place(x=60, y=150)
 
 # ---------- NOW ADD YOUR BUTTONS ----------
 button1 = Button(root, text="Alexa tell me a Joke", fg="black", font=("Arial", 12, "bold"), bg="#ADD8E6", height=2)
-button1.place(x=120, y=130)
+button1.place(x=260, y=190)
 
-button2 = Button(root, text="Show Punchline", fg="black", font=("Arial", 12, "bold"), bg="#FF0000", height=2)
-button2.place(x=310, y=130)
+button2 = Button(root, text="Show Punchline", fg="black", font=("Arial", 12, "bold"), bg="#FF0000", width=15, height=2)
+button2.place(x=260, y=255)
 
 button3 = Button(root, text="Next Joke", fg="black", font=("Arial", 12, "bold"), bg="#008000", width=15, height=2)
-button3.place(x=120, y=200)
+button3.place(x=260, y=320)
 
-button4 = Button(root, text="Quit", fg="black", font=("Arial", 12, "bold"), bg="#FFA500", width=13, height=2)
-button4.place(x=310, y=200)
+button4 = Button(root, text="Quit", fg="black", font=("Arial", 12, "bold"), bg="#FFA500", width=15, height=2)
+button4.place(x=260, y=385)
 
 # ---------- JOKE GAME CLASS ----------
 class JokeGame:
