@@ -4,16 +4,23 @@ from PIL import ImageTk, Image
 
 # ---------- MAIN WINDOW ----------
 root = Tk()
-root.geometry("400x550")
+root.geometry("580x470")
 root.title("Random Joke Game")
 
+# ---------- BACKGROUND IMAGE ----------
+bg_image = Image.open("funny.png")
+bg_image = bg_image.resize((580, 470))  # Resize to match window size
+bg_photo = ImageTk.PhotoImage(bg_image)
 
+bg_label = Label(root, image=bg_photo)
+bg_label.image = bg_photo           # prevent garbage collection
+bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-# ---------- NOW ADD YOUR LABELS ----------
-setup_label = Label(root, text="", font=("Arial", 14), wraplength=500, bg="#ffffff")
+# Labels
+setup_label = Label(root, text="", font=("Arial", 14), wraplength=500)
 setup_label.place(x=50, y=20)
 
-punchline_label = Label(root, text="", font=("Arial", 14, "italic"), fg="blue", wraplength=500, bg="#ffffff")
+punchline_label = Label(root, text="", font=("Arial", 14, "italic"), fg="blue", wraplength=500)
 punchline_label.place(x=50, y=80)
 
 # ---------- NOW ADD YOUR BUTTONS ----------
@@ -33,6 +40,7 @@ button4.place(x=310, y=200)
 class JokeGame:
     def __init__(self, root):
         self.root = root
+
         self.jokes = [
             ("Why did the chicken cross the road?", "To get to the other side."),
             ("What happens if you boil a clown?", "You get a laughing stock."),
@@ -106,7 +114,6 @@ button4['command'] = lambda: app_controller.close_app()
 
 # ---------- MAINLOOP ----------
 root.mainloop()
-
 
 
 
