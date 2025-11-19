@@ -1,11 +1,22 @@
 from tkinter import *
 import random
+from PIL import ImageTk, Image
 
 # ---------- MAIN WINDOW ----------
 root = Tk()
-root.geometry("600x350")
+root.geometry("400x550")
 root.title("Random Joke Game")
 
+
+
+# ---------- NOW ADD YOUR LABELS ----------
+setup_label = Label(root, text="", font=("Arial", 14), wraplength=500, bg="#ffffff")
+setup_label.place(x=50, y=20)
+
+punchline_label = Label(root, text="", font=("Arial", 14, "italic"), fg="blue", wraplength=500, bg="#ffffff")
+punchline_label.place(x=50, y=80)
+
+# ---------- NOW ADD YOUR BUTTONS ----------
 button1 = Button(root, text="Alexa tell me a Joke", fg="black", font=("Arial", 12, "bold"), bg="#ADD8E6", height=2)
 button1.place(x=120, y=130)
 
@@ -18,17 +29,10 @@ button3.place(x=120, y=200)
 button4 = Button(root, text="Quit", fg="black", font=("Arial", 12, "bold"), bg="#FFA500", width=13, height=2)
 button4.place(x=310, y=200)
 
-setup_label = Label(root, text="", font=("Arial", 14), wraplength=500)
-setup_label.place(x=50, y=20)
-
-punchline_label = Label(root, text="", font=("Arial", 14, "italic"), fg="blue", wraplength=500)
-punchline_label.place(x=50, y=80)
-
 # ---------- JOKE GAME CLASS ----------
 class JokeGame:
     def __init__(self, root):
         self.root = root
-
         self.jokes = [
             ("Why did the chicken cross the road?", "To get to the other side."),
             ("What happens if you boil a clown?", "You get a laughing stock."),
