@@ -94,7 +94,7 @@ class JokeGame:
     def punchline_reveal(self):
         if self.punchline_text:
             punchline_label['text'] = self.punchline_text
-            punchline_label['fg'] = "#FF8400"
+            punchline_label['fg'] = "#00AAFF"
 
     def refresh_joke(self):
         setup_label['text'] = "Getting ready..."
