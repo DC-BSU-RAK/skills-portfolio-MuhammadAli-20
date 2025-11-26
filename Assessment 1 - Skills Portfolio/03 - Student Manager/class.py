@@ -67,24 +67,26 @@ class StudentManagementSystem:
         columns = ("id", "name", "c1", "c2", "c3", "exam", "percent", "grade")
         self.tree = ttk.Treeview(right_frame, columns=columns, show="headings")
 
-        # ====================== TREEVIEW STYLE (ADDED) ====================
+        # ====================== TREEVIEW STYLE (WITH BOLD FONT) ====================
         style = ttk.Style()
         style.theme_use("default")
 
+        # Header style
         style.configure("Treeview.Heading",
                         background="#4a90e2",
                         foreground="white",
                         font=("Arial", 12, "bold"))
 
+        # Row style (BOLD ADDED HERE)
         style.configure("Treeview",
                         background="white",
                         foreground="black",
                         rowheight=28,
-                        font=("Arial", 11))
+                        font=("Arial", 11, "bold"))
 
+        # Selected row highlight
         style.map("Treeview",
                   background=[("selected", "#a3c1f7")])
-
         # =================================================================
 
         headings = {
