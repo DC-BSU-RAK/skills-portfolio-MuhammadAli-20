@@ -7,55 +7,83 @@ class StudentManagementSystem:
     def __init__(self, root):
         self.root = root
         self.root.title("Student Manager")
-        self.root.geometry("1000x500")
+        self.root.geometry("1200x600")
+        self.root.configure(bg="#e7eef7")
 
         # list to store all student records
         self.students = []
 
         # ====================== MAIN LAYOUT ==========================
-        left_frame = tk.Frame(root)
-        left_frame.pack(side="left", padx=20, pady=20)
+        main_frame = tk.Frame(root, bg="#e7eef7")
+        main_frame.pack(fill="both", expand=True)
 
-        right_frame = tk.Frame(root)
-        right_frame.pack(side="right", padx=10, pady=20, fill="both", expand=True)
+        # configure grid for centering
+        main_frame.columnconfigure(0, weight=1)
+        main_frame.columnconfigure(1, weight=3)
+        main_frame.rowconfigure(0, weight=1)
 
-        # ====================== LEFT INPUT PANEL =====================
-        tk.Label(left_frame, text="Student No").grid(row=0, column=0, padx=5, pady=5, sticky="w")
-        self.id_entry = tk.Entry(left_frame, width=18)
-        self.id_entry.grid(row=0, column=1, padx=5, pady=5)
+        # ====================== LEFT — ENTRY PANEL =====================
+        left_frame = tk.Frame(main_frame, bg="white", bd=2, relief="groove")
+        left_frame.grid(row=0, column=0, padx=40, pady=40, sticky="ns")
 
-        tk.Label(left_frame, text="Name").grid(row=1, column=0, padx=5, pady=5, sticky="w")
-        self.name_entry = tk.Entry(left_frame, width=18)
-        self.name_entry.grid(row=1, column=1, padx=5, pady=5)
+        # Title bar
+        title_bar = tk.Frame(left_frame, bg="#4a90e2", height=50)
+        title_bar.pack(fill="x")
 
-        tk.Label(left_frame, text="Coursework 1").grid(row=2, column=0, padx=5, pady=5, sticky="w")
-        self.c1_entry = tk.Entry(left_frame, width=18)
-        self.c1_entry.grid(row=2, column=1, padx=5, pady=5)
+        tk.Label(title_bar, text="STUDENT ENTRY PANEL",
+                 font=("Arial", 16, "bold"), bg="#4a90e2", fg="white").pack(pady=5)
 
-        tk.Label(left_frame, text="Coursework 2").grid(row=3, column=0, padx=5, pady=5, sticky="w")
-        self.c2_entry = tk.Entry(left_frame, width=18)
-        self.c2_entry.grid(row=3, column=1, padx=5, pady=5)
+        # Entry form container
+        form_frame = tk.Frame(left_frame, bg="white")
+        form_frame.pack(padx=20, pady=20)
 
-        tk.Label(left_frame, text="Coursework 3").grid(row=4, column=0, padx=5, pady=5, sticky="w")
-        self.c3_entry = tk.Entry(left_frame, width=18)
-        self.c3_entry.grid(row=4, column=1, padx=5, pady=5)
+        def add_label(text, row):
+            tk.Label(form_frame, text=text, bg="white", font=("Arial", 12)).grid(row=row, column=0, sticky="w", pady=10)
 
-        tk.Label(left_frame, text="Exam Mark").grid(row=5, column=0, padx=5, pady=5, sticky="w")
-        self.exam_entry = tk.Entry(left_frame, width=18)
-        self.exam_entry.grid(row=5, column=1, padx=5, pady=5)
+        def add_entry(row):
+            entry = tk.Entry(form_frame, width=20, font=("Arial", 12))
+            entry.grid(row=row, column=1, pady=10)
+            return entry
 
-        # =================== RIGHT — STUDENT TABLE ====================
+        add_label("Student No", 0)
+        self.id_entry = add_entry(0)
+
+        add_label("Name", 1)
+        self.name_entry = add_entry(1)
+
+        add_label("Coursework 1", 2)
+        self.c1_entry = add_entry(2)
+
+        add_label("Coursework 2", 3)
+        self.c2_entry = add_entry(3)
+
+        add_label("Coursework 3", 4)
+        self.c3_entry = add_entry(4)
+
+        add_label("Exam Mark", 5)
+        self.exam_entry = add_entry(5)
+
+        # ====================== RIGHT — STUDENT TABLE ====================
+        right_frame = tk.Frame(main_frame, bg="#e7eef7")
+        right_frame.grid(row=0, column=1, padx=20, pady=40, sticky="nsew")
+
         columns = ("id", "name", "c1", "c2", "c3", "exam", "percent", "grade")
         self.tree = ttk.Treeview(right_frame, columns=columns, show="headings")
 
         headings = {
-            "id": "Student No", "name": "Name", "c1": "C1", "c2": "C2",
-            "c3": "C3", "exam": "Exam", "percent": "%", "grade": "Grade"
+            "id": "Student No",
+            "name": "Name",
+            "c1": "C1",
+            "c2": "C2",
+            "c3": "C3",
+            "exam": "Exam",
+            "percent": "%",
+            "grade": "Grade"
         }
 
         for col, txt in headings.items():
             self.tree.heading(col, text=txt)
-            self.tree.column(col, width=90)
+            self.tree.column(col, width=100, anchor="center")
 
         self.tree.pack(fill="both", expand=True)
 
@@ -85,7 +113,7 @@ class StudentManagementSystem:
         self.students.clear()
         try:
             with open("studentMarks.txt", "r") as f:
-                lines = f.readlines()[1:]
+                lines = f.readlines()[1:]  # skip the first line
                 for line in lines:
                     sid, name, c1, c2, c3, exam = line.strip().split(",")
                     c1, c2, c3, exam = int(c1), int(c2), int(c3), int(exam)
@@ -94,9 +122,14 @@ class StudentManagementSystem:
                     grade = self.get_grade(percent)
 
                     self.students.append({
-                        "id": sid, "name": name,
-                        "c1": c1, "c2": c2, "c3": c3,
-                        "exam": exam, "percent": percent, "grade": grade
+                        "id": sid,
+                        "name": name,
+                        "c1": c1,
+                        "c2": c2,
+                        "c3": c3,
+                        "exam": exam,
+                        "percent": percent,
+                        "grade": grade
                     })
         except FileNotFoundError:
             messagebox.showerror("Error", "studentMarks.txt not found!")
@@ -109,7 +142,7 @@ class StudentManagementSystem:
             for s in self.students:
                 f.write(f"{s['id']},{s['name']},{s['c1']},{s['c2']},{s['c3']},{s['exam']}\n")
 
-    # =================== CALCULATE GRADE =============================
+    # =================== GRADE CALCULATION ============================
 
     def get_grade(self, percent):
         if percent >= 70: return "A"
@@ -145,7 +178,7 @@ class StudentManagementSystem:
             return
 
         if not sid or not name:
-            messagebox.showerror("Error", "Student No & Name required.")
+            messagebox.showerror("Error", "Student No & Name are required.")
             return
 
         # prevent duplicate ID
@@ -234,6 +267,7 @@ class StudentManagementSystem:
 
         for s in self.students:
             if s["id"] == sid:
+
                 self.id_entry.delete(0, END)
                 self.name_entry.delete(0, END)
                 self.c1_entry.delete(0, END)
@@ -248,8 +282,10 @@ class StudentManagementSystem:
                 self.c3_entry.insert(0, s["c3"])
                 self.exam_entry.insert(0, s["exam"])
 
-                save_btn = tk.Button(self.root, text="Save Update", command=self.apply_update)
-                save_btn.pack()
+                save_btn = tk.Button(self.root, text="Save Update", bg="#4a90e2",
+                                     fg="white", font=("Arial", 12), command=self.apply_update)
+                save_btn.place(x=50, y=550)
+
                 return
 
         messagebox.showerror("Error", "Student not found.")
@@ -282,6 +318,7 @@ class StudentManagementSystem:
 
         self.save_to_file()
         self.update_tree()
+
         messagebox.showinfo("Success", "Record updated successfully.")
 
 
