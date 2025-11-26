@@ -5,13 +5,12 @@ from random import randint, choice
 import pygame
 from PIL import Image, ImageTk
 
-# ---------- MAIN WINDOW ----------
 root = Tk()
 root.geometry("600x350")
 root.title("Maths Quiz Game")
 pygame.mixer.init()
 
-# ---------- GLOBAL VARIABLES ----------
+# main game state variables
 difficulty = StringVar()
 question = StringVar()
 answer = IntVar()
@@ -20,17 +19,17 @@ score = IntVar(value = 0)
 current_question = 0
 attempts = 1
 
-# ---------- FUNCTIONS ----------
-# ---------- BACKGROUND GIF SETUP ----------
+# canvas for animated GIF background
 bg_canvas = tk.Canvas(root, width = 600, height = 350, highlightthickness = 0, bd = 0)
 bg_canvas.place(x = 0, y = 0, relwidth = 1, relheight = 1)
 
-gif_pil_frames = []
-frame_delay = 100
+gif_pil_frames = [] # store all GIF frames here
+frame_delay = 100 # updated after loading GIF
 frame_index = 0
 bg_image_id = bg_canvas.create_image(0, 0, anchor = "nw")
 
 def load_gif_background():
+    # read GIF frames manually because tkinter doesn't support animated GIF directly
     global frame_delay, gif_pil_frames
 
     gif = Image.open("maths.gif")      
@@ -43,6 +42,7 @@ def load_gif_background():
     frame_delay = gif.info.get("duration", 100)
 
 def animate_background():
+    # loop through frames to create animation effect
     global frame_index
 
     if not gif_pil_frames:
@@ -53,10 +53,11 @@ def animate_background():
 
     tk_frame = ImageTk.PhotoImage(pil_frame)
     bg_canvas.itemconfig(bg_image_id, image=tk_frame)
-    bg_canvas.image = tk_frame  
+    bg_canvas.image = tk_frame  # prevent garbage collection
 
     root.after(frame_delay, animate_background)
 
+# simple sound wrappers
 def play_correct_sound():
         pygame.mixer.music.load("correct.mp3")       
         pygame.mixer.music.play()
@@ -80,6 +81,7 @@ def clear_window():
             widget.destroy()
 
 def displayMenu():
+     # main difficulty menu
     global current_question, score
     clear_window()
     score.set(0)
@@ -88,6 +90,7 @@ def displayMenu():
     current_question = 0
     label = Label(root, text = "DIFFICULTY LEVEL MENU", fg = "black", font = ("Arial", 16, "bold"))
     label.pack(pady = 30)
+    # difficulty buttons
     button = Button(root, text = "Easy (Single Digits)", command = lambda: begin_quiz("Easy"), fg = "green", font = ("Arial", 12, "bold"), bg = "#ADD8E6")
     button.pack(pady = 7)
     button = Button(root, text = "Moderate (Double Digits)", command = lambda: begin_quiz("Moderate"), fg = "yellow", font = ("Arial", 12, "bold"), bg = "#ADD8E6")
@@ -98,6 +101,7 @@ def displayMenu():
     button.pack(pady = 10)
 
 def randomInt(level):
+    # generate random numbers based on chosen difficulty
     if level == "Easy":
         return randint(1, 9), randint(1, 9)
     elif level == "Moderate":
@@ -106,9 +110,11 @@ def randomInt(level):
         return randint(1000, 9999), randint(1000, 9999)
 
 def decideOperation():
+    # simple random operator
     return choice(["+", "-"])
 
 def begin_quiz(level):
+    # reset quiz state and start
     global difficulty, current_question, score
     difficulty.set(level)
     score.set(0)
@@ -116,10 +122,11 @@ def begin_quiz(level):
     show_question()
 
 def show_question():
+    # builds one question screen at a time
     global num1, num2, operation, answer, attempts
     clear_window()
     attempts = 1
-
+    # generate question
     num1, num2 = randomInt(difficulty.get())
     operation = decideOperation()
 
@@ -140,6 +147,7 @@ def show_question():
     label.pack(pady = 10)
 
 def checkAnswer():
+    # handles both attempts for each question
     global attempts
 
     correct_answer = answer.get()
@@ -155,6 +163,7 @@ def checkAnswer():
 
         if user_answer == correct_answer:
             play_correct_sound()
+            # different scores based on attempt
             if current_try == 1:
                 messagebox.showinfo("Correct!", "Great job! +10 points.")
                 score.set(score.get() + 10)
@@ -163,8 +172,8 @@ def checkAnswer():
                 score.set(score.get() + 5)
             nextQuestion()
             break
-
         else:
+            # incorrect response
             if current_try == 1:
                 play_wrong_sound()
                 messagebox.showwarning("Try Again", "Wrong! Try once more.")
@@ -178,6 +187,7 @@ def checkAnswer():
                 break
 
 def nextQuestion():
+    # move to next question or finish quiz
     global current_question
     current_question += 1
 
@@ -188,7 +198,7 @@ def nextQuestion():
         displayResults()
 
 def displayResults():
-
+    # shows grade and summary at end of quiz
     grade = ""
     if score.get() >= 90:
         play_cheer_sound()
@@ -217,6 +227,7 @@ def displayResults():
     button.pack(pady = 20)
 
 def restart():
+    # resets variables before going back to menu
     global current_question, score
     score.set(0)
     current_question = 0
@@ -224,9 +235,11 @@ def restart():
     question.set("")
     displayMenu()  
 
-# ---------- START PROGRAM ----------
+# load and run GIF animation
 load_gif_background()
 animate_background()
+
+# start game
 displayMenu()
 root.mainloop()
 

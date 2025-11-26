@@ -17,7 +17,6 @@ class StudentManagementSystem:
         main_frame = tk.Frame(root, bg="#e7eef7")
         main_frame.pack(fill="both", expand=True)
 
-        # configure grid for centering
         main_frame.columnconfigure(0, weight=1)
         main_frame.columnconfigure(1, weight=3)
         main_frame.rowconfigure(0, weight=1)
@@ -26,14 +25,12 @@ class StudentManagementSystem:
         left_frame = tk.Frame(main_frame, bg="white", bd=2, relief="groove")
         left_frame.grid(row=0, column=0, padx=40, pady=40, sticky="ns")
 
-        # Title bar
         title_bar = tk.Frame(left_frame, bg="#4a90e2", height=50)
         title_bar.pack(fill="x")
 
         tk.Label(title_bar, text="STUDENT ENTRY PANEL",
                  font=("Arial", 16, "bold"), bg="#4a90e2", fg="white").pack(pady=5)
 
-        # Entry form container
         form_frame = tk.Frame(left_frame, bg="white")
         form_frame.pack(padx=20, pady=20)
 
@@ -70,6 +67,26 @@ class StudentManagementSystem:
         columns = ("id", "name", "c1", "c2", "c3", "exam", "percent", "grade")
         self.tree = ttk.Treeview(right_frame, columns=columns, show="headings")
 
+        # ====================== TREEVIEW STYLE (ADDED) ====================
+        style = ttk.Style()
+        style.theme_use("default")
+
+        style.configure("Treeview.Heading",
+                        background="#4a90e2",
+                        foreground="white",
+                        font=("Arial", 12, "bold"))
+
+        style.configure("Treeview",
+                        background="white",
+                        foreground="black",
+                        rowheight=28,
+                        font=("Arial", 11))
+
+        style.map("Treeview",
+                  background=[("selected", "#a3c1f7")])
+
+        # =================================================================
+
         headings = {
             "id": "Student No",
             "name": "Name",
@@ -104,16 +121,14 @@ class StudentManagementSystem:
         menu.add_command(label="7. Delete Student", command=self.delete_student)
         menu.add_command(label="8. Update Student", command=self.update_student_prompt)
 
-        # load studentMarks.txt on start
         self.load_from_file()
 
     # ====================== FILE HANDLING =============================
-
     def load_from_file(self):
         self.students.clear()
         try:
             with open("studentMarks.txt", "r") as f:
-                lines = f.readlines()[1:]  # skip the first line
+                lines = f.readlines()[1:]
                 for line in lines:
                     sid, name, c1, c2, c3, exam = line.strip().split(",")
                     c1, c2, c3, exam = int(c1), int(c2), int(c3), int(exam)
@@ -143,7 +158,6 @@ class StudentManagementSystem:
                 f.write(f"{s['id']},{s['name']},{s['c1']},{s['c2']},{s['c3']},{s['exam']}\n")
 
     # =================== GRADE CALCULATION ============================
-
     def get_grade(self, percent):
         if percent >= 70: return "A"
         if percent >= 60: return "B"
@@ -152,7 +166,6 @@ class StudentManagementSystem:
         return "F"
 
     # ========================== TREE UPDATE ===========================
-
     def update_tree(self):
         for row in self.tree.get_children():
             self.tree.delete(row)
@@ -163,7 +176,6 @@ class StudentManagementSystem:
                                      s["exam"], s["percent"], s["grade"]))
 
     # ========================== ADD STUDENT ===========================
-
     def add_student(self):
         sid = self.id_entry.get().strip()
         name = self.name_entry.get().strip()
@@ -181,7 +193,6 @@ class StudentManagementSystem:
             messagebox.showerror("Error", "Student No & Name are required.")
             return
 
-        # prevent duplicate ID
         for s in self.students:
             if s["id"] == sid:
                 messagebox.showerror("Error", "Student ID already exists.")
@@ -200,7 +211,6 @@ class StudentManagementSystem:
         self.update_tree()
 
     # ========================== DELETE ================================
-
     def delete_student(self):
         selected = self.tree.selection()
         if not selected:
@@ -214,7 +224,6 @@ class StudentManagementSystem:
         self.update_tree()
 
     # ========================= MENU FUNCTIONS =========================
-
     def view_all(self):
         self.update_tree()
         avg = sum(s["percent"] for s in self.students) / len(self.students)
@@ -259,7 +268,6 @@ class StudentManagementSystem:
         self.update_tree()
 
     # ========================== UPDATE STUDENT ========================
-
     def update_student_prompt(self):
         sid = simpledialog.askstring("Update", "Enter student number:")
         if not sid:
@@ -323,7 +331,6 @@ class StudentManagementSystem:
 
 
 # =========================== RUN APP ================================
-
 if __name__ == "__main__":
     root = Tk()
     app = StudentManagementSystem(root)
