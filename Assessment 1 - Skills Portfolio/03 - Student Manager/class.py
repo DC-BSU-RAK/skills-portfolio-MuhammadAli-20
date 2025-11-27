@@ -10,7 +10,6 @@ class StudentManagementSystem:
         self.root.geometry("1200x600")
         self.root.configure(bg="#e7eef7")
 
-        # list to store all student records
         self.students = []
 
         # ====================== MAIN LAYOUT ==========================
@@ -34,8 +33,10 @@ class StudentManagementSystem:
         form_frame = tk.Frame(left_frame, bg="white")
         form_frame.pack(padx=20, pady=20)
 
+        # ----------- Labels (Bold) -------------
         def add_label(text, row):
-            tk.Label(form_frame, text=text, bg="white", font=("Arial", 12)).grid(row=row, column=0, sticky="w", pady=10)
+            tk.Label(form_frame, text=text, bg="white",
+                     font=("Arial", 12, "bold")).grid(row=row, column=0, sticky="w", pady=10)
 
         def add_entry(row):
             entry = tk.Entry(form_frame, width=20, font=("Arial", 12))
@@ -67,27 +68,22 @@ class StudentManagementSystem:
         columns = ("id", "name", "c1", "c2", "c3", "exam", "percent", "grade")
         self.tree = ttk.Treeview(right_frame, columns=columns, show="headings")
 
-        # ====================== TREEVIEW STYLE (WITH BOLD FONT) ====================
         style = ttk.Style()
         style.theme_use("default")
 
-        # Header style
         style.configure("Treeview.Heading",
                         background="#4a90e2",
                         foreground="white",
                         font=("Arial", 12, "bold"))
 
-        # Row style (BOLD ADDED HERE)
         style.configure("Treeview",
                         background="white",
                         foreground="black",
                         rowheight=28,
                         font=("Arial", 11, "bold"))
 
-        # Selected row highlight
         style.map("Treeview",
                   background=[("selected", "#a3c1f7")])
-        # =================================================================
 
         headings = {
             "id": "Student No",
@@ -102,7 +98,19 @@ class StudentManagementSystem:
 
         for col, txt in headings.items():
             self.tree.heading(col, text=txt)
-            self.tree.column(col, width=100, anchor="center")
+
+            if col == "id":
+                self.tree.column(col, width=90, anchor="center")
+            elif col == "name":
+                self.tree.column(col, width=230, anchor="w")
+            elif col in ("c1", "c2", "c3"):
+                self.tree.column(col, width=65, anchor="center")
+            elif col == "exam":
+                self.tree.column(col, width=80, anchor="center")
+            elif col == "percent":
+                self.tree.column(col, width=70, anchor="center")
+            elif col == "grade":
+                self.tree.column(col, width=70, anchor="center")
 
         self.tree.pack(fill="both", expand=True)
 
@@ -125,14 +133,19 @@ class StudentManagementSystem:
 
         self.load_from_file()
 
-    # ====================== FILE HANDLING =============================
+    # ====================== LOAD FILE (Cleaned) =====================
     def load_from_file(self):
         self.students.clear()
         try:
-            with open("studentMarks.txt", "r") as f:
-                lines = f.readlines()[1:]
-                for line in lines:
-                    sid, name, c1, c2, c3, exam = line.strip().split(",")
+            with open("studentMarks.txt", "r", encoding="utf-8") as f:
+                lines = [line.strip().replace("\ufeff", "") for line in f if line.strip()]
+
+                for line in lines[1:]:
+                    parts = [p.strip() for p in line.split(",")]
+                    if len(parts) != 6:
+                        continue
+
+                    sid, name, c1, c2, c3, exam = parts
                     c1, c2, c3, exam = int(c1), int(c2), int(c3), int(exam)
 
                     percent = round(((c1 + c2 + c3 + exam) / 160) * 100, 2)
@@ -148,18 +161,20 @@ class StudentManagementSystem:
                         "percent": percent,
                         "grade": grade
                     })
-        except FileNotFoundError:
+
+        except:
             messagebox.showerror("Error", "studentMarks.txt not found!")
 
         self.update_tree()
 
+    # ====================== SAVE FILE =====================
     def save_to_file(self):
-        with open("studentMarks.txt", "w") as f:
+        with open("studentMarks.txt", "w", encoding="utf-8") as f:
             f.write(str(len(self.students)) + "\n")
             for s in self.students:
                 f.write(f"{s['id']},{s['name']},{s['c1']},{s['c2']},{s['c3']},{s['exam']}\n")
 
-    # =================== GRADE CALCULATION ============================
+    # ====================== GRADE =====================
     def get_grade(self, percent):
         if percent >= 70: return "A"
         if percent >= 60: return "B"
@@ -167,17 +182,15 @@ class StudentManagementSystem:
         if percent >= 40: return "D"
         return "F"
 
-    # ========================== TREE UPDATE ===========================
+    # ====================== TREE UPDATE =====================
     def update_tree(self):
-        for row in self.tree.get_children():
-            self.tree.delete(row)
-
+        self.tree.delete(*self.tree.get_children())
         for s in self.students:
             self.tree.insert("", tk.END,
-                             values=(s["id"], s["name"], s["c1"], s["c2"], s["c3"],
-                                     s["exam"], s["percent"], s["grade"]))
+                values=(s["id"], s["name"], s["c1"], s["c2"], s["c3"],
+                        s["exam"], s["percent"], s["grade"]))
 
-    # ========================== ADD STUDENT ===========================
+    # ====================== ADD STUDENT =====================
     def add_student(self):
         sid = self.id_entry.get().strip()
         name = self.name_entry.get().strip()
@@ -210,22 +223,27 @@ class StudentManagementSystem:
         })
 
         self.save_to_file()
-        self.update_tree()
+        self.load_from_file()
 
-    # ========================== DELETE ================================
+    # ====================== ⭐ THE FIXED DELETE FUNCTION =====================
     def delete_student(self):
         selected = self.tree.selection()
+
         if not selected:
             messagebox.showwarning("Warning", "Select a student to delete")
             return
 
-        sid = self.tree.item(selected[0])["values"][0]
+        item = selected[0]
+        sid = self.tree.item(item, "values")[0]
+
         self.students = [s for s in self.students if s["id"] != sid]
 
         self.save_to_file()
-        self.update_tree()
+        self.load_from_file()
 
-    # ========================= MENU FUNCTIONS =========================
+        messagebox.showinfo("Success", "Student deleted successfully.")
+
+    # ====================== MENU FUNCTIONS =====================
     def view_all(self):
         self.update_tree()
         avg = sum(s["percent"] for s in self.students) / len(self.students)
@@ -233,10 +251,9 @@ class StudentManagementSystem:
 
     def view_individual(self):
         q = simpledialog.askstring("Search", "Enter student number or name:")
-        if not q:
-            return
-
+        if not q: return
         q = q.lower()
+
         for s in self.students:
             if s["id"] == q or q in s["name"].lower():
                 cw = s["c1"] + s["c2"] + s["c3"]
@@ -269,15 +286,12 @@ class StudentManagementSystem:
         self.students.sort(key=lambda s: s["percent"])
         self.update_tree()
 
-    # ========================== UPDATE STUDENT ========================
     def update_student_prompt(self):
         sid = simpledialog.askstring("Update", "Enter student number:")
-        if not sid:
-            return
+        if not sid: return
 
         for s in self.students:
             if s["id"] == sid:
-
                 self.id_entry.delete(0, END)
                 self.name_entry.delete(0, END)
                 self.c1_entry.delete(0, END)
@@ -327,12 +341,11 @@ class StudentManagementSystem:
                 s["grade"] = grade
 
         self.save_to_file()
-        self.update_tree()
+        self.load_from_file()
 
         messagebox.showinfo("Success", "Record updated successfully.")
 
 
-# =========================== RUN APP ================================
 if __name__ == "__main__":
     root = Tk()
     app = StudentManagementSystem(root)
