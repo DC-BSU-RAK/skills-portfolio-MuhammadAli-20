@@ -1,11 +1,15 @@
 from tkinter import *
 import random
 from PIL import ImageTk, Image
+import pygame
+import pyttsx3
+import threading
 
 # ---------- MAIN WINDOW ----------
 root = Tk()
 root.geometry("650x500")
 root.title("Random Joke Game")
+pygame.mixer.init()
 
 # ---------- BACKGROUND IMAGE ----------
 bg_image = Image.open("funny.png")
@@ -16,14 +20,46 @@ bg_label = Label(root, image=bg_photo)
 bg_label.image = bg_photo           # prevent garbage collection
 bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-# Labels
-setup_label = Label(root, text="", font=("Arial", 14), bg="#FFF8ED", width = 50)
+# ---------- SOUND + TTS HELPERS ----------
+
+# original speak() for setup (unchanged)
+def speak(text):
+    def run_tts():
+        engine = pyttsx3.init()
+        engine.setProperty("rate", 175)
+        engine.say(text)
+        engine.runAndWait()
+        engine.stop()
+    threading.Thread(target=run_tts, daemon=True).start()
+
+# NEW: speak punchline, then laugh
+def speak_punchline_with_laugh(text):
+    def run_tts_then_laugh():
+        engine = pyttsx3.init()
+        engine.setProperty("rate", 175)
+        engine.say(text)
+        engine.runAndWait()
+        engine.stop()
+
+        # after Alexa finishes, play laughing sound
+        pygame.mixer.music.load("laughing_man.mp3")
+        pygame.mixer.music.play()
+
+    threading.Thread(target=run_tts_then_laugh, daemon=True).start()
+
+# (kept in case you use it somewhere else later)
+def play_laughing_man():
+    pygame.mixer.music.load("laughing_man.mp3")
+    pygame.mixer.music.play()
+
+# ---------- LABELS ----------
+setup_label = Label(root, text="", font=("Arial", 14), bg="#FFF8ED", width=50)
 setup_label.place(x=60, y=120)
 
-punchline_label = Label(root, text="", font=("Arial", 14), bg="#FFF8ED", width = 50)
+punchline_label = Label(root, text="", font=("Arial", 14), bg="#FFF8ED", width=50)
 punchline_label.place(x=60, y=150)
 
-# ---------- NOW ADD YOUR BUTTONS ----------
+# ---------- BUTTONS ----------
 button1 = Button(root, text="Alexa tell me a Joke", fg="black", font=("Arial", 12, "bold"), bg="#ADD8E6", height=2)
 button1.place(x=260, y=190)
 
@@ -91,10 +127,15 @@ class JokeGame:
         punchline_label['text'] = ""
         self.punchline_text = punchline_display
 
+        speak(setup_display)   # Alexa reads setup
+
     def punchline_reveal(self):
         if self.punchline_text:
             punchline_label['text'] = self.punchline_text
             punchline_label['fg'] = "#00AAFF"
+            
+            # 🔥 CHANGE HERE: instead of just laughing, speak punchline then laugh
+            speak_punchline_with_laugh(self.punchline_text)
 
     def refresh_joke(self):
         setup_label['text'] = "Getting ready..."
@@ -114,6 +155,3 @@ button4['command'] = lambda: app_controller.close_app()
 
 # ---------- MAINLOOP ----------
 root.mainloop()
-
-
-

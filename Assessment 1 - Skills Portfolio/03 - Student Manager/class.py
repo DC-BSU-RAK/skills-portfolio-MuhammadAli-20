@@ -27,16 +27,24 @@ class StudentManagementSystem:
         title_bar = tk.Frame(left_frame, bg="#4a90e2", height=50)
         title_bar.pack(fill="x")
 
-        tk.Label(title_bar, text="STUDENT ENTRY PANEL",
-                 font=("Arial", 16, "bold"), bg="#4a90e2", fg="white").pack(pady=5)
+        tk.Label(
+            title_bar,
+            text="STUDENT ENTRY PANEL",
+            font=("Arial", 16, "bold"),
+            bg="#4a90e2",
+            fg="white"
+        ).pack(pady=5)
 
         form_frame = tk.Frame(left_frame, bg="white")
         form_frame.pack(padx=20, pady=20)
 
-        # ----------- Labels (Bold) -------------
         def add_label(text, row):
-            tk.Label(form_frame, text=text, bg="white",
-                     font=("Arial", 12, "bold")).grid(row=row, column=0, sticky="w", pady=10)
+            tk.Label(
+                form_frame,
+                text=text,
+                bg="white",
+                font=("Arial", 12, "bold")
+            ).grid(row=row, column=0, sticky="w", pady=10)
 
         def add_entry(row):
             entry = tk.Entry(form_frame, width=20, font=("Arial", 12))
@@ -65,25 +73,29 @@ class StudentManagementSystem:
         right_frame = tk.Frame(main_frame, bg="#e7eef7")
         right_frame.grid(row=0, column=1, padx=20, pady=40, sticky="nsew")
 
-        columns = ("id", "name", "c1", "c2", "c3", "exam", "percent", "grade")
+        # NOTE: added "cw_total" column
+        columns = ("id", "name", "c1", "c2", "c3", "cw_total", "exam", "percent", "grade")
         self.tree = ttk.Treeview(right_frame, columns=columns, show="headings")
 
         style = ttk.Style()
         style.theme_use("default")
 
-        style.configure("Treeview.Heading",
-                        background="#4a90e2",
-                        foreground="white",
-                        font=("Arial", 12, "bold"))
+        style.configure(
+            "Treeview.Heading",
+            background="#4a90e2",
+            foreground="white",
+            font=("Arial", 12, "bold")
+        )
 
-        style.configure("Treeview",
-                        background="white",
-                        foreground="black",
-                        rowheight=28,
-                        font=("Arial", 11, "bold"))
+        style.configure(
+            "Treeview",
+            background="white",
+            foreground="black",
+            rowheight=28,
+            font=("Arial", 11, "bold")
+        )
 
-        style.map("Treeview",
-                  background=[("selected", "#a3c1f7")])
+        style.map("Treeview", background=[("selected", "#a3c1f7")])
 
         headings = {
             "id": "Student No",
@@ -91,6 +103,7 @@ class StudentManagementSystem:
             "c1": "C1",
             "c2": "C2",
             "c3": "C3",
+            "cw_total": "CW Total",   # total coursework
             "exam": "Exam",
             "percent": "%",
             "grade": "Grade"
@@ -102,9 +115,11 @@ class StudentManagementSystem:
             if col == "id":
                 self.tree.column(col, width=90, anchor="center")
             elif col == "name":
-                self.tree.column(col, width=230, anchor="w")
+                self.tree.column(col, width=200, anchor="w")
             elif col in ("c1", "c2", "c3"):
-                self.tree.column(col, width=65, anchor="center")
+                self.tree.column(col, width=50, anchor="center")
+            elif col == "cw_total":
+                self.tree.column(col, width=90, anchor="center")
             elif col == "exam":
                 self.tree.column(col, width=80, anchor="center")
             elif col == "percent":
@@ -133,7 +148,7 @@ class StudentManagementSystem:
 
         self.load_from_file()
 
-    # ====================== LOAD FILE (Cleaned) =====================
+    # ====================== LOAD FILE =====================
     def load_from_file(self):
         self.students.clear()
         try:
@@ -148,7 +163,8 @@ class StudentManagementSystem:
                     sid, name, c1, c2, c3, exam = parts
                     c1, c2, c3, exam = int(c1), int(c2), int(c3), int(exam)
 
-                    percent = round(((c1 + c2 + c3 + exam) / 160) * 100, 2)
+                    cw_total = c1 + c2 + c3                    # total coursework out of 60
+                    percent = round(((cw_total + exam) / 160) * 100, 2)
                     grade = self.get_grade(percent)
 
                     self.students.append({
@@ -157,6 +173,7 @@ class StudentManagementSystem:
                         "c1": c1,
                         "c2": c2,
                         "c3": c3,
+                        "cw_total": cw_total,
                         "exam": exam,
                         "percent": percent,
                         "grade": grade
@@ -172,6 +189,7 @@ class StudentManagementSystem:
         with open("studentMarks.txt", "w", encoding="utf-8") as f:
             f.write(str(len(self.students)) + "\n")
             for s in self.students:
+                # only save original marks; cw_total, percent, grade are derived
                 f.write(f"{s['id']},{s['name']},{s['c1']},{s['c2']},{s['c3']},{s['exam']}\n")
 
     # ====================== GRADE =====================
@@ -186,9 +204,21 @@ class StudentManagementSystem:
     def update_tree(self):
         self.tree.delete(*self.tree.get_children())
         for s in self.students:
-            self.tree.insert("", tk.END,
-                values=(s["id"], s["name"], s["c1"], s["c2"], s["c3"],
-                        s["exam"], s["percent"], s["grade"]))
+            self.tree.insert(
+                "",
+                tk.END,
+                values=(
+                    s["id"],
+                    s["name"],
+                    s["c1"],
+                    s["c2"],
+                    s["c3"],
+                    s["cw_total"],
+                    s["exam"],
+                    s["percent"],
+                    s["grade"]
+                )
+            )
 
     # ====================== ADD STUDENT =====================
     def add_student(self):
@@ -213,19 +243,26 @@ class StudentManagementSystem:
                 messagebox.showerror("Error", "Student ID already exists.")
                 return
 
-        percent = round(((c1 + c2 + c3 + exam) / 160) * 100, 2)
+        cw_total = c1 + c2 + c3
+        percent = round(((cw_total + exam) / 160) * 100, 2)
         grade = self.get_grade(percent)
 
         self.students.append({
-            "id": sid, "name": name,
-            "c1": c1, "c2": c2, "c3": c3,
-            "exam": exam, "percent": percent, "grade": grade
+            "id": sid,
+            "name": name,
+            "c1": c1,
+            "c2": c2,
+            "c3": c3,
+            "cw_total": cw_total,
+            "exam": exam,
+            "percent": percent,
+            "grade": grade
         })
 
         self.save_to_file()
         self.load_from_file()
 
-    # ====================== ⭐ THE FIXED DELETE FUNCTION =====================
+    # ====================== DELETE STUDENT =====================
     def delete_student(self):
         selected = self.tree.selection()
 
@@ -243,55 +280,130 @@ class StudentManagementSystem:
 
         messagebox.showinfo("Success", "Student deleted successfully.")
 
-    # ====================== MENU FUNCTIONS =====================
+    # ====================== VIEW ALL (table + summary) =====================
     def view_all(self):
+        # show full table
         self.update_tree()
-        avg = sum(s["percent"] for s in self.students) / len(self.students)
-        messagebox.showinfo("Summary", f"Total students: {len(self.students)}\nAverage %: {avg:.2f}%")
 
+        # summary: total students + average percentage
+        avg = sum(s["percent"] for s in self.students) / len(self.students)
+        messagebox.showinfo(
+            "Summary",
+            f"Total students: {len(self.students)}\nAverage %: {avg:.2f}%"
+        )
+
+    # ====================== VIEW INDIVIDUAL (table update) =====================
     def view_individual(self):
         q = simpledialog.askstring("Search", "Enter student number or name:")
-        if not q: return
+        if not q:
+            return
+
         q = q.lower()
 
         for s in self.students:
             if s["id"] == q or q in s["name"].lower():
-                cw = s["c1"] + s["c2"] + s["c3"]
-                msg = (
-                    f"Name: {s['name']}\n"
-                    f"Student Number: {s['id']}\n"
-                    f"Total coursework: {cw} / 60\n"
-                    f"Exam: {s['exam']} / 100\n"
-                    f"Percent: {s['percent']}%\n"
-                    f"Grade: {s['grade']}"
+
+                self.tree.delete(*self.tree.get_children())
+
+                self.tree.insert(
+                    "",
+                    tk.END,
+                    values=(
+                        s["id"],
+                        s["name"],
+                        s["c1"],
+                        s["c2"],
+                        s["c3"],
+                        s["cw_total"],
+                        s["exam"],
+                        s["percent"],
+                        s["grade"]
+                    )
                 )
-                messagebox.showinfo("Record Found", msg)
                 return
 
         messagebox.showerror("Not found", "Student not found.")
 
+    # ====================== HIGHEST TOTAL (table update) =====================
     def show_highest(self):
         best = max(self.students, key=lambda s: s["percent"])
-        cw = best["c1"] + best["c2"] + best["c3"]
-        messagebox.showinfo("Highest Overall",
-                            f"{best['name']} ({best['percent']}%)\nCW: {cw}/60\nExam: {best['exam']}/100")
 
+        self.tree.delete(*self.tree.get_children())
+
+        self.tree.insert(
+            "",
+            tk.END,
+            values=(
+                best["id"],
+                best["name"],
+                best["c1"],
+                best["c2"],
+                best["c3"],
+                best["cw_total"],
+                best["exam"],
+                best["percent"],
+                best["grade"]
+            )
+        )
+
+    # ====================== LOWEST TOTAL (table update) =====================
     def show_lowest(self):
         worst = min(self.students, key=lambda s: s["percent"])
-        cw = worst["c1"] + worst["c2"] + worst["c3"]
-        messagebox.showinfo("Lowest Overall",
-                            f"{worst['name']} ({worst['percent']}%)\nCW: {cw}/60\nExam: {worst['exam']}/100")
 
+        self.tree.delete(*self.tree.get_children())
+
+        self.tree.insert(
+            "",
+            tk.END,
+            values=(
+                worst["id"],
+                worst["name"],
+                worst["c1"],
+                worst["c2"],
+                worst["c3"],
+                worst["cw_total"],
+                worst["exam"],
+                worst["percent"],
+                worst["grade"]
+            )
+        )
+
+    # ====================== SORT =====================
     def sort_records(self):
-        self.students.sort(key=lambda s: s["percent"])
-        self.update_tree()
+        choice = simpledialog.askstring(
+            "Sort Records",
+            "Enter sorting order:\n\n"
+            "A = Ascending (Lowest → Highest)\n"
+            "D = Descending (Highest → Lowest)"
+        )
 
+        if not choice:
+            return
+
+        choice = choice.lower()
+
+        if choice == "a":
+            self.students.sort(key=lambda s: s["percent"])
+            self.update_tree()
+            messagebox.showinfo("Sorted", "Records sorted in ascending order.")
+
+        elif choice == "d":
+            self.students.sort(key=lambda s: s["percent"], reverse=True)
+            self.update_tree()
+            messagebox.showinfo("Sorted", "Records sorted in descending order.")
+
+        else:
+            messagebox.showerror("Error", "Invalid choice. Please enter A or D.")
+
+    # ====================== UPDATE STUDENT =====================
     def update_student_prompt(self):
         sid = simpledialog.askstring("Update", "Enter student number:")
-        if not sid: return
+        if not sid:
+            return
 
         for s in self.students:
             if s["id"] == sid:
+
                 self.id_entry.delete(0, END)
                 self.name_entry.delete(0, END)
                 self.c1_entry.delete(0, END)
@@ -306,8 +418,14 @@ class StudentManagementSystem:
                 self.c3_entry.insert(0, s["c3"])
                 self.exam_entry.insert(0, s["exam"])
 
-                save_btn = tk.Button(self.root, text="Save Update", bg="#4a90e2",
-                                     fg="white", font=("Arial", 12), command=self.apply_update)
+                save_btn = tk.Button(
+                    self.root,
+                    text="Save Update",
+                    bg="#4a90e2",
+                    fg="white",
+                    font=("Arial", 12),
+                    command=self.apply_update
+                )
                 save_btn.place(x=50, y=550)
 
                 return
@@ -327,7 +445,8 @@ class StudentManagementSystem:
             messagebox.showerror("Error", "Marks must be integers.")
             return
 
-        percent = round(((c1 + c2 + c3 + exam) / 160) * 100, 2)
+        cw_total = c1 + c2 + c3
+        percent = round(((cw_total + exam) / 160) * 100, 2)
         grade = self.get_grade(percent)
 
         for s in self.students:
@@ -336,6 +455,7 @@ class StudentManagementSystem:
                 s["c1"] = c1
                 s["c2"] = c2
                 s["c3"] = c3
+                s["cw_total"] = cw_total
                 s["exam"] = exam
                 s["percent"] = percent
                 s["grade"] = grade

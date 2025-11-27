@@ -6,7 +6,8 @@ import pygame
 from PIL import Image, ImageTk
 
 root = Tk()
-root.geometry("600x350")
+# root.resizable(width=False, height=False)
+root.geometry("600x370")
 root.title("Maths Quiz Game")
 pygame.mixer.init()
 
@@ -242,5 +243,7 @@ animate_background()
 # start game
 displayMenu()
 root.mainloop()
+
+
 
 
