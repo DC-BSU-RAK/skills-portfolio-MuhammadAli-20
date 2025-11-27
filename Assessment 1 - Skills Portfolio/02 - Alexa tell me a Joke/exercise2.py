@@ -1,56 +1,50 @@
 from tkinter import *
 import random
 from PIL import ImageTk, Image
-import pygame
 import pyttsx3
 import threading
+import pygame
 
 # ---------- MAIN WINDOW ----------
 root = Tk()
 root.geometry("650x500")
 root.title("Random Joke Game")
+
+# ---------- INITIALIZE PYGAME ----------
 pygame.mixer.init()
 
 # ---------- BACKGROUND IMAGE ----------
 bg_image = Image.open("funny.png")
-bg_image = bg_image.resize((650, 500))  # Resize to match window size
+bg_image = bg_image.resize((650, 500))
 bg_photo = ImageTk.PhotoImage(bg_image)
 
 bg_label = Label(root, image=bg_photo)
-bg_label.image = bg_photo           # prevent garbage collection
+bg_label.image = bg_photo
 bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-# ---------- SOUND + TTS HELPERS ----------
+# ---------- GLOBAL LOCK (prevents overlapping TTS) ----------
+speech_lock = threading.Lock()
 
-# original speak() for setup (unchanged)
-def speak(text):
-    def run_tts():
-        engine = pyttsx3.init()
-        engine.setProperty("rate", 175)
-        engine.say(text)
-        engine.runAndWait()
-        engine.stop()
-    threading.Thread(target=run_tts, daemon=True).start()
-
-# NEW: speak punchline, then laugh
-def speak_punchline_with_laugh(text):
-    def run_tts_then_laugh():
-        engine = pyttsx3.init()
-        engine.setProperty("rate", 175)
-        engine.say(text)
-        engine.runAndWait()
-        engine.stop()
-
-        # after Alexa finishes, play laughing sound
-        pygame.mixer.music.load("laughing_man.mp3")
-        pygame.mixer.music.play()
-
-    threading.Thread(target=run_tts_then_laugh, daemon=True).start()
-
-# (kept in case you use it somewhere else later)
-def play_laughing_man():
+# ---------- PLAY LAUGHING SOUND ----------
+def play_laughing_man_sound():
     pygame.mixer.music.load("laughing_man.mp3")
     pygame.mixer.music.play()
+
+# ---------- STABLE SPEAK FUNCTION WITH CALLBACK ----------
+def speak(text, after_speech=None):
+    def run_tts():
+        with speech_lock:
+            engine = pyttsx3.init()
+            engine.setProperty("rate", 175)
+            engine.say(text)
+            engine.runAndWait()
+            engine.stop()
+
+        # Call the callback AFTER speaking (if provided)
+        if after_speech:
+            after_speech()
+
+    threading.Thread(target=run_tts, daemon=True).start()
 
 # ---------- LABELS ----------
 setup_label = Label(root, text="", font=("Arial", 14), bg="#FFF8ED", width=50)
@@ -58,19 +52,6 @@ setup_label.place(x=60, y=120)
 
 punchline_label = Label(root, text="", font=("Arial", 14), bg="#FFF8ED", width=50)
 punchline_label.place(x=60, y=150)
-
-# ---------- BUTTONS ----------
-button1 = Button(root, text="Alexa tell me a Joke", fg="black", font=("Arial", 12, "bold"), bg="#ADD8E6", height=2)
-button1.place(x=260, y=190)
-
-button2 = Button(root, text="Show Punchline", fg="black", font=("Arial", 12, "bold"), bg="#FF0000", width=15, height=2)
-button2.place(x=260, y=255)
-
-button3 = Button(root, text="Next Joke", fg="black", font=("Arial", 12, "bold"), bg="#008000", width=15, height=2)
-button3.place(x=260, y=320)
-
-button4 = Button(root, text="Quit", fg="black", font=("Arial", 12, "bold"), bg="#FFA500", width=15, height=2)
-button4.place(x=260, y=385)
 
 # ---------- JOKE GAME CLASS ----------
 class JokeGame:
@@ -120,38 +101,52 @@ class JokeGame:
         self.punchline_text = ""
 
     def joke_display(self):
-        joke_data = random.sample(self.jokes, 1)[0]
+        joke_data = random.choice(self.jokes)
         setup_display = joke_data[0]
         punchline_display = joke_data[1]
+
         setup_label['text'] = setup_display
         punchline_label['text'] = ""
         self.punchline_text = punchline_display
 
-        speak(setup_display)   # Alexa reads setup
+        speak(setup_display)  # Alexa speaks joke setup
 
     def punchline_reveal(self):
         if self.punchline_text:
             punchline_label['text'] = self.punchline_text
             punchline_label['fg'] = "#00AAFF"
-            
-            # 🔥 CHANGE HERE: instead of just laughing, speak punchline then laugh
-            speak_punchline_with_laugh(self.punchline_text)
+
+            # Alexa speaks punchline → THEN laughing sound plays
+            speak(self.punchline_text, after_speech=play_laughing_man_sound)
 
     def refresh_joke(self):
         setup_label['text'] = "Getting ready..."
         punchline_label['text'] = ""
-        punchline_label['fg'] = 'blue'
+        punchline_label['fg'] = "blue"
         self.root.after(500, self.joke_display)
 
     def close_app(self):
         self.root.quit()
 
+# ---------- BUTTONS ----------
 app_controller = JokeGame(root)
 
-button1['command'] = lambda: app_controller.joke_display()
-button2['command'] = lambda: app_controller.punchline_reveal()
-button3['command'] = lambda: app_controller.refresh_joke()
-button4['command'] = lambda: app_controller.close_app()
+button1 = Button(root, text="Alexa tell me a Joke", font=("Arial", 12, "bold"), bg="#ADD8E6",
+                 height=2, command=app_controller.joke_display)
+button1.place(x=260, y=190)
 
-# ---------- MAINLOOP ----------
+button2 = Button(root, text="Show Punchline", font=("Arial", 12, "bold"), bg="#FF0000", width=15, height=2,
+                 command=app_controller.punchline_reveal)
+button2.place(x=260, y=255)
+
+button3 = Button(root, text="Next Joke", font=("Arial", 12, "bold"), bg="#008000", width=15, height=2,
+                 command=app_controller.refresh_joke)
+button3.place(x=260, y=320)
+
+button4 = Button(root, text="Quit", font=("Arial", 12, "bold"), bg="#FFA500", width=15, height=2,
+                 command=app_controller.close_app)
+button4.place(x=260, y=385)
+
+# ---------- MAIN LOOP ----------
 root.mainloop()
+

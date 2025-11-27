@@ -1,7 +1,5 @@
-10
-2983,Les Ferdinand,15,17,18,92
-1222,Him,7,16,22,89
-1290,Muhammad,23,23,23,60
+8
+2983,Les Ferdinand,15,17,18,67
 3724,Matt Thompson,19,11,15,81
 2345,Sam Sturtivant,14,15,14,77
 1212,Ron Herrema,14,17,18,66
