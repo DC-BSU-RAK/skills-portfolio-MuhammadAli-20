@@ -5,34 +5,37 @@ import pyttsx3
 import threading
 import pygame
 
-# ---------- MAIN WINDOW ----------
+# main window setup
 root = Tk()
+root.resizable(width = False, height = False)
 root.geometry("650x500")
 root.title("Random Joke Game")
 
-# ---------- INITIALIZE PYGAME ----------
+# sound system
 pygame.mixer.init()
 
-# ---------- BACKGROUND IMAGE ----------
+# background image loading
 bg_image = Image.open("funny.png")
 bg_image = bg_image.resize((650, 500))
 bg_photo = ImageTk.PhotoImage(bg_image)
 
-bg_label = Label(root, image=bg_photo)
+# background label
+bg_label = Label(root, image = bg_photo)
 bg_label.image = bg_photo
-bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+bg_label.place(x = 0, y = 0, relwidth = 1, relheight = 1)
 
-# ---------- GLOBAL LOCK (prevents overlapping TTS) ----------
+# used to prevent overlapping speech
 speech_lock = threading.Lock()
 
-# ---------- PLAY LAUGHING SOUND ----------
+# plays laughing sound at the end of the punchline
 def play_laughing_man_sound():
     pygame.mixer.music.load("laughing_man.mp3")
     pygame.mixer.music.play()
 
-# ---------- STABLE SPEAK FUNCTION WITH CALLBACK ----------
-def speak(text, after_speech=None):
+# handles text-to-speech with optional callback
+def speak(text, after_speech = None):
     def run_tts():
+        # avoid speaking multiple things at once
         with speech_lock:
             engine = pyttsx3.init()
             engine.setProperty("rate", 175)
@@ -40,24 +43,25 @@ def speak(text, after_speech=None):
             engine.runAndWait()
             engine.stop()
 
-        # Call the callback AFTER speaking (if provided)
+        # run callback after speaking
         if after_speech:
             after_speech()
 
-    threading.Thread(target=run_tts, daemon=True).start()
+    threading.Thread(target = run_tts, daemon = True).start()
 
-# ---------- LABELS ----------
-setup_label = Label(root, text="", font=("Arial", 14), bg="#FFF8ED", width=50)
-setup_label.place(x=60, y=120)
+# labels for setup and punchline text
+setup_label = Label(root, text = "", font = ("Arial", 14), bg = "#FFF8ED", width = 50)
+setup_label.place(x = 60, y = 120)
 
-punchline_label = Label(root, text="", font=("Arial", 14), bg="#FFF8ED", width=50)
-punchline_label.place(x=60, y=150)
+punchline_label = Label(root, text = "", font = ("Arial", 14), bg = "#FFF8ED", width = 50)
+punchline_label.place(x = 60, y = 150)
 
-# ---------- JOKE GAME CLASS ----------
+
 class JokeGame:
     def __init__(self, root):
         self.root = root
 
+        # list of jokes used by the app
         self.jokes = [
             ("Why did the chicken cross the road?", "To get to the other side."),
             ("What happens if you boil a clown?", "You get a laughing stock."),
@@ -98,8 +102,10 @@ class JokeGame:
             ("Why don't scientists trust atoms?", "They make up everything.")
         ]
 
+        # stores the punchline for the current joke
         self.punchline_text = ""
 
+    # picks and speaks a random joke setup
     def joke_display(self):
         joke_data = random.choice(self.jokes)
         setup_display = joke_data[0]
@@ -109,45 +115,41 @@ class JokeGame:
         punchline_label['text'] = ""
         self.punchline_text = punchline_display
 
-        speak(setup_display)  # Alexa speaks joke setup
+        speak(setup_display)
 
+    # shows punchline + speaks it + plays laugh sound
     def punchline_reveal(self):
         if self.punchline_text:
             punchline_label['text'] = self.punchline_text
             punchline_label['fg'] = "#00AAFF"
+            speak(self.punchline_text, after_speech = play_laughing_man_sound)
 
-            # Alexa speaks punchline → THEN laughing sound plays
-            speak(self.punchline_text, after_speech=play_laughing_man_sound)
-
+    # loads the next random joke
     def refresh_joke(self):
         setup_label['text'] = "Getting ready..."
         punchline_label['text'] = ""
         punchline_label['fg'] = "blue"
         self.root.after(500, self.joke_display)
 
+    # exits the program
     def close_app(self):
         self.root.quit()
 
-# ---------- BUTTONS ----------
+# controller instance
 app_controller = JokeGame(root)
 
-button1 = Button(root, text="Alexa tell me a Joke", font=("Arial", 12, "bold"), bg="#ADD8E6",
-                 height=2, command=app_controller.joke_display)
-button1.place(x=260, y=190)
+# buttons for controlling the joke actions
+button1 = Button(root, text = "Alexa tell me a Joke", font = ("Arial", 12, "bold"), bg  ="#ADD8E6", height = 2, command = app_controller.joke_display)
+button1.place(x = 260, y = 190)
 
-button2 = Button(root, text="Show Punchline", font=("Arial", 12, "bold"), bg="#FF0000", width=15, height=2,
-                 command=app_controller.punchline_reveal)
+button2 = Button(root, text = "Show Punchline", font = ("Arial", 12, "bold"), bg = "#FF0000", width = 15, height = 2, command = app_controller.punchline_reveal)
 button2.place(x=260, y=255)
 
-button3 = Button(root, text="Next Joke", font=("Arial", 12, "bold"), bg="#008000", width=15, height=2,
-                 command=app_controller.refresh_joke)
-button3.place(x=260, y=320)
+button3 = Button(root, text = "Next Joke", font = ("Arial", 12, "bold"), bg = "#008000", width = 15, height = 2, command = app_controller.refresh_joke)
+button3.place(x = 260, y = 320)
 
-button4 = Button(root, text="Quit", font=("Arial", 12, "bold"), bg="#FFA500", width=15, height=2,
-                 command=app_controller.close_app)
-button4.place(x=260, y=385)
+button4 = Button(root, text = "Quit", font = ("Arial", 12, "bold"), bg = "#FFA500", width = 15, height = 2, command = app_controller.close_app)
+button4.place(x = 260, y = 385)
 
-# ---------- MAIN LOOP ----------
 root.mainloop()
 
-#end

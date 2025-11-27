@@ -6,7 +6,7 @@ import pygame
 from PIL import Image, ImageTk
 
 root = Tk()
-# root.resizable(width=False, height=False)
+root.resizable(width = False, height = False)
 root.geometry("600x370")
 root.title("Maths Quiz Game")
 pygame.mixer.init()
@@ -30,7 +30,6 @@ frame_index = 0
 bg_image_id = bg_canvas.create_image(0, 0, anchor = "nw")
 
 def load_gif_background():
-    # read GIF frames manually because tkinter doesn't support animated GIF directly
     global frame_delay, gif_pil_frames
 
     gif = Image.open("maths.gif")      
@@ -53,8 +52,8 @@ def animate_background():
     pil_frame = gif_pil_frames[frame_index]
 
     tk_frame = ImageTk.PhotoImage(pil_frame)
-    bg_canvas.itemconfig(bg_image_id, image=tk_frame)
-    bg_canvas.image = tk_frame  # prevent garbage collection
+    bg_canvas.itemconfig(bg_image_id, image = tk_frame)
+    bg_canvas.image = tk_frame  # 
 
     root.after(frame_delay, animate_background)
 
@@ -192,7 +191,7 @@ def nextQuestion():
     global current_question
     current_question += 1
 
-    if current_question < 1:
+    if current_question < 10:
         show_question()
     else:
         messagebox.showinfo("Quiz Completed", f"You’ve completed all {current_question} questions!")
@@ -244,6 +243,6 @@ animate_background()
 displayMenu()
 root.mainloop()
 
-#end
+
 
 
