@@ -7,7 +7,7 @@ class StudentManagementSystem:
         self.root = root
         self.root.title("Student Manager")
         self.root.geometry("1200x600")
-        self.root.configure(bg="#061A40")  # dark blue background
+        self.root.configure(bg="#061A40")  # dark blue bg
 
         self.students = []
 
@@ -65,11 +65,13 @@ class StudentManagementSystem:
 
         # ====================== RIGHT TABLE ==========================
         right_frame = tk.Frame(main_frame, bg="#061A40")
+
+        # 🔥 FIXED — SAME HEIGHT AS LEFT PANEL (40 top & bottom)
         right_frame.grid(
             row=0,
             column=1,
             padx=20,
-            pady=(140, 40),   # <<<<< MOVED TABLE DOWNWARD
+            pady=40,     # <<<<< MATCHES LEFT PANEL HEIGHT
             sticky="nsew"
         )
 
@@ -90,8 +92,7 @@ class StudentManagementSystem:
                         rowheight=28,
                         font=("Arial", 11, "bold"))
 
-        style.map("Treeview",
-                  background=[("selected", "#a3c1f7")])
+        style.map("Treeview", background=[("selected", "#a3c1f7")])
 
         headings = {
             "id": "Student No",
@@ -128,7 +129,7 @@ class StudentManagementSystem:
 
         self.tree.pack(fill="both", expand=True)
 
-        # ====================== MENU ==========================
+        # ====================== MENU BAR ==========================
         menubar = tk.Menu(self.root)
         self.root.config(menu=menubar)
 
@@ -156,7 +157,7 @@ class StudentManagementSystem:
         self.c3_entry.delete(0, END)
         self.exam_entry.delete(0, END)
 
-    # ====================== FILE LOAD ==========================
+    # ====================== LOAD FILE ==========================
     def load_from_file(self):
         self.students.clear()
         try:
@@ -198,7 +199,7 @@ class StudentManagementSystem:
         if percent >= 40: return "D"
         return "F"
 
-    # ====================== UPDATE TREE ==========================
+    # ====================== UPDATE TABLE ==========================
     def update_tree(self):
         self.tree.delete(*self.tree.get_children())
 
@@ -249,7 +250,7 @@ class StudentManagementSystem:
         self.load_from_file()
         self.reset_fields()
 
-    # ====================== DELETE STUDENT ==========================
+    # ====================== DELETE ==========================
     def delete_student(self):
         selected = self.tree.selection()
         if not selected:
@@ -267,7 +268,6 @@ class StudentManagementSystem:
     # ====================== VIEW ALL ==========================
     def view_all(self):
         self.update_tree()
-
         avg = sum(s["percent"] for s in self.students) / len(self.students)
         messagebox.showinfo("Summary",
                             f"Total students: {len(self.students)}\nAverage %: {avg:.2f}%")
@@ -281,7 +281,6 @@ class StudentManagementSystem:
 
         for s in self.students:
             if s["id"] == q or q in s["name"].lower():
-
                 self.tree.delete(*self.tree.get_children())
                 self.tree.insert("", tk.END, values=(
                     s["id"], s["name"], s["c1"], s["c2"], s["c3"],
@@ -294,7 +293,6 @@ class StudentManagementSystem:
     # ====================== HIGHEST ==========================
     def show_highest(self):
         best = max(self.students, key=lambda s: s["percent"])
-
         self.tree.delete(*self.tree.get_children())
         self.tree.insert("", tk.END, values=(
             best["id"], best["name"], best["c1"], best["c2"], best["c3"],
@@ -304,7 +302,6 @@ class StudentManagementSystem:
     # ====================== LOWEST ==========================
     def show_lowest(self):
         worst = min(self.students, key=lambda s: s["percent"])
-
         self.tree.delete(*self.tree.get_children())
         self.tree.insert("", tk.END, values=(
             worst["id"], worst["name"], worst["c1"], worst["c2"], worst["c3"],
